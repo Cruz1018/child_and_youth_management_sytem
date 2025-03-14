@@ -1,74 +1,170 @@
+<?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Start the session
+session_start();
+
+// Include the database connection
+include 'conn.php';
+
+// Function to log in the user
+function loginUser($usernameOrEmail, $password) {
+    global $conn;
+
+    // Check database connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Prepare and bind the statement
+    $stmt = $conn->prepare("SELECT id, firstname, lastname, username, email, password FROM user WHERE username = ? OR email = ?");
+    if (!$stmt) {
+        die("Error preparing statement: " . $conn->error);
+    }
+
+    $stmt->bind_param("ss", $usernameOrEmail, $usernameOrEmail);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        // Bind the result
+        $stmt->bind_result($id, $firstname, $lastname, $username, $email, $hashedPassword);
+        $stmt->fetch();
+
+        // Debugging: Check fetched data
+        // echo "Fetched Password Hash: " . $hashedPassword;
+
+        // Verify the password
+        if (password_verify($password, $hashedPassword)) {
+            // Set session variables
+            $_SESSION['user_id'] = $id;
+            $_SESSION['username'] = $username;
+            $_SESSION['email'] = $email;
+            $_SESSION['firstname'] = $firstname;
+            $_SESSION['lastname'] = $lastname;
+
+            // Redirect based on user ID
+            if ($id == 10) {
+                header("Location: Admin/landing_page.php");
+            } else {
+                header("Location: user/landing_page.php");
+            }
+            exit();
+        } else {
+            echo "<script>alert('Invalid password.');</script>";
+        }
+    } else {
+        echo "<script>alert('No user found with that username or email.');</script>";
+    }
+
+    // Close connections
+    $stmt->close();
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $usernameOrEmail = trim($_POST['usernameOrEmail']);
+    $password = trim($_POST['password']);
+
+    // Check if fields are empty
+    if (!empty($usernameOrEmail) && !empty($password)) {
+        loginUser($usernameOrEmail, $password);
+    } else {
+        echo "<script>alert('Please fill in all fields.');</script>";
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to right, #00c6ff, #0072ff);
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
-        .container {
-            background: white;
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 350px;
             text-align: center;
         }
-        .container h2 {
-            margin-bottom: 20px;
+        .login-container h2 {
+            margin-top: 0;
             color: #333;
         }
-        .container input {
+        .login-container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            text-align: left;
+        }
+        .login-container input {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box;
         }
-        .container button {
+        .login-container button {
             width: 100%;
-            padding: 10px;
-            background: #007bff;
+            padding: 12px;
+            background-color: #007BFF;
             border: none;
             border-radius: 5px;
-            color: white;
-            font-size: 16px;
+            color: #fff;
+            font-size: 18px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: background-color 0.3s ease;
         }
-        .container button:hover {
-            background: #0056b3;
+        .login-container button:hover {
+            background-color: #0056b3;
         }
-        .container p {
+        .login-container .forgot-password {
             margin-top: 10px;
-        }
-        .container a {
-            color: #007bff;
+            display: block;
+            color: #007BFF;
             text-decoration: none;
         }
-        .container a:hover {
+        .login-container .forgot-password:hover {
+            text-decoration: underline;
+        }
+        .login-container .register-link {
+            margin-top: 10px;
+            display: block;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .login-container .register-link:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="login-container">
         <h2>Login</h2>
         <form action="login.php" method="post">
-            <input type="text" name="usernameOrEmail" placeholder="Username or Email" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <label for="usernameOrEmail">Username or Email:</label>
+            <input type="text" id="usernameOrEmail" name="usernameOrEmail" required><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
             <button type="submit">Login</button>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+            <a href="register.php" class="register-link">Register here</a>
         </form>
-        <p>Don't have an account? <a href="register.php">Register here</a></p>
     </div>
 </body>
 </html>

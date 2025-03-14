@@ -2,14 +2,7 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION)) {
-    $_SESSION = array();
-}
-if (isset($_SESSION['username'])) {
-    $username = $_SESSION['username'];
-} else {
-    $username = null;
-}
+$username = $_SESSION['username'] ?? 'Guest';
 ?>
 <nav class="topnav navbar navbar-light">
   <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">

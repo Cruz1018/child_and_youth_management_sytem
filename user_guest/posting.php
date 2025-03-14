@@ -4,26 +4,6 @@ include '../conn.php';
 $content = '';
 $imagePaths = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Handle new comment submission
-    if (isset($_POST['comment_content']) && isset($_POST['post_id'])) {
-        $commentContent = $_POST['comment_content'];
-        $postId = $_POST['post_id'];
-        $commentImagePath = null;
-
-        // Handle comment image upload
-        if (!empty($_FILES['comment_image']['tmp_name'])) {
-            $commentImagePath = 'uploads/comments/' . basename($_FILES['comment_image']['name']);
-            move_uploaded_file($_FILES['comment_image']['tmp_name'], $commentImagePath);
-        }
-
-        $stmt = $conn->prepare("INSERT INTO comments (post_id, content, image_path) VALUES (?, ?, ?)");
-        $stmt->bind_param("iss", $postId, $commentContent, $commentImagePath);
-        $stmt->execute();
-        $stmt->close();
-    }
-}
-
 // Fetch posts and comments from the database
 $posts = $conn->query("SELECT p.id, p.content, pi.image_path FROM posts p LEFT JOIN post_images pi ON p.id = pi.post_id ORDER BY p.id DESC");
 
@@ -97,33 +77,6 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             border-radius: 5px;
             display: block;
             cursor: pointer;
-        }
-        .post-form, .comment-form {
-            background: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            resize: none;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
         }
         .modal {
             display: none;
@@ -202,12 +155,7 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                             </div>
 
                             <div class="comment-form">
-                                <form action="posting.php" method="post" enctype="multipart/form-data">
-                                    <input type="hidden" name="post_id" value="<?php echo $postId; ?>">
-                                    <textarea name="comment_content" placeholder="Add a comment..." required></textarea>
-                                    <input type="file" name="comment_image">
-                                    <button type="submit">Comment</button>
-                                </form>
+                                <p>You need to <a href="login.php">log in</a> to comment.</p>
                             </div>
                         </div>
                     <?php endwhile; ?>

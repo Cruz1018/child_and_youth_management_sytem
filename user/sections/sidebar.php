@@ -52,29 +52,15 @@
             <a class="nav-link pl-3" href="profiling.php"><span class="ml-1 item-text">Profiling</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link pl-3" href="#"><span class="ml-1 item-text">Data Report</span></a>
+            <a class="nav-link pl-3" href="upoints.php"><span class="ml-1 item-text">Points</span></a>
           </li>
         </ul>
-      </li>
-    </ul>
-    <ul class="navbar-nav flex-fill w-100 mb-2">
-      <li class="nav-item w-100">
-        <a class="nav-link" href="eventrec.php">
-          <i class="fa-solid fa-wrench"></i>
-          <span class="ml-3 item-text">Event Recommendation</span>
-        </a>
       </li>
     </ul>
     <p class="text-muted-nav nav-heading mt-4 mb-1">
       <span style="font-size: 10.5px; font-weight: bold; font-family: 'Inter', sans-serif;">SETTINGS</span>
     </p>
     <ul class="navbar-nav flex-fill w-100 mb-2">
-      <li class="nav-item w-100">
-        <a class="nav-link" href="#">
-          <i class="fa-solid fa-screwdriver-wrench"></i>
-          <span class="ml-3 item-text">Settings</span>
-        </a>
-      </li>
       <li class="nav-item w-100">
         <a class="nav-link" href="logout.php">
           <i class="fa-solid fa-sign-out-alt"></i>

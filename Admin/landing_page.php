@@ -28,15 +28,12 @@
 
 <body class="vertical  light">
   <div class="wrapper">
-    <?php include '..//Admin/sections/navbar.php'; ?>
-    <?php include '../CYMS/Admin/sections/sidebar.php'; ?>
+    <?php include 'sections/navbar.php'; ?>
+    <?php include 'sections/sidebar.php'; ?>
 
     <main role="main" class="main-content">
       <div class="content">
-        <h2>Welcome to the Landing Page</h2>
-        <p>This is the landing page content.</p>
-        <a href="admin_center.php">Go to Admin Center</a>
-        <a href="apoints.php">Add Points to Users</a>
+        <h2>Welcome to the Admin Center</h2>
 
         <?php
         // Include database connection
@@ -46,13 +43,13 @@
         $userResult = $conn->query("SELECT COUNT(*) as count FROM user");
         $userCount = $userResult->fetch_assoc()['count'];
 
-        // Fetch data from 'volunteer' table
-        $volunteerResult = $conn->query("SELECT COUNT(*) as count FROM volunteer");
-        $volunteerCount = $volunteerResult->fetch_assoc()['count'];
+        // Fetch data from 'cy' table
+        $cyResult = $conn->query("SELECT COUNT(*) as count FROM cy");
+        $cyCount = $cyResult->fetch_assoc()['count'];
 
-        // Fetch data from 'events' table
-        $eventsResult = $conn->query("SELECT COUNT(*) as count FROM events");
-        $eventsCount = $eventsResult->fetch_assoc()['count'];
+        // Fetch data from 'programs' table
+        $programsResult = $conn->query("SELECT COUNT(*) as count FROM programs");
+        $programsCount = $programsResult->fetch_assoc()['count'];
 
         $conn->close();
         ?>
@@ -71,12 +68,12 @@
               <td><?php echo $userCount; ?></td>
             </tr>
             <tr>
-              <td>Volunteers</td>
-              <td><?php echo $volunteerCount; ?></td>
+              <td>CY</td>
+              <td><?php echo $cyCount; ?></td>
             </tr>
             <tr>
-              <td>Events</td>
-              <td><?php echo $eventsCount; ?></td>
+              <td>Programs</td>
+              <td><?php echo $programsCount; ?></td>
             </tr>
           </tbody>
         </table>
@@ -120,7 +117,7 @@
       var options = {
         series: [{
           name: 'Count',
-          data: [<?php echo $userCount; ?>, <?php echo $volunteerCount; ?>, <?php echo $eventsCount; ?>]
+          data: [<?php echo $userCount; ?>, <?php echo $cyCount; ?>, <?php echo $programsCount; ?>]
         }],
         chart: {
           type: 'bar',
@@ -137,7 +134,7 @@
           enabled: false
         },
         xaxis: {
-          categories: ['Users', 'Volunteers', 'Events'],
+          categories: ['Users', 'CY', 'Programs'],
         }
       };
 

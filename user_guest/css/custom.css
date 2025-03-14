@@ -1,0 +1,93 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f4f7f6;
+}
+
+.main-content {
+  padding: 20px;
+}
+
+.post-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.post-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.post-form input[type="file"] {
+  margin-bottom: 10px;
+}
+
+.post-form button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.post-form button:hover {
+  background-color: #0056b3;
+}
+
+.posts .post {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.posts .post img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.comments {
+  margin-top: 20px;
+}
+
+.comments .comment {
+  background-color: #f4f7f6;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.comments form {
+  display: flex;
+  flex-direction: column;
+}
+
+.comments form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.comments form button {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comments form button:hover {
+  background-color: #0056b3;
+}
