@@ -1,102 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYMS - Empowering the Future</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to right, #1a237e, #0d47a1);
-            text-align: center;
-            color: white;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            padding: 20px;
-        }
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 1.2rem;
-            max-width: 800px;
-            line-height: 1.6;
-        }
-        .btn {
-            display: inline-block;
-            padding: 15px 30px;
-            margin-top: 20px;
-            font-size: 1.2rem;
-            color: white;
-            background-color: #3949ab;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .btn:hover {
-            background-color: #303f9f;
-        }
-        .features {
-            margin-top: 50px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-        }
-        .feature-box {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            text-align: center;
-        }
-        .footer {
-            margin-top: 50px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome to the Children and Youth Management System</h1>
-        <p>Empowering the youth through innovative programs, event recommendations, and community engagement.</p>
-        <a href="login.php" class="btn"><i class="fas fa-sign-in-alt"></i> Login</a>
-        
-        <div class="features">
-            <div class="feature-box">
-                <h3>AI-Driven Event Recommendations</h3>
-                <p>Personalized events based on children and youth profiles, ensuring meaningful participation.</p>
-            </div>
-            <div class="feature-box">
-                <h3>Community Engagement</h3>
-                <p>Interactive forums, group activities, and local event collaboration to boost involvement.</p>
-            </div>
-            <div class="feature-box">
-                <h3>Volunteer Opportunities</h3>
-                <p>Encouraging community members to take part in youth-focused programs and activities.</p>
-            </div>
-            <div class="feature-box">
-                <h3>Performance Tracking</h3>
-                <p>Monitor youth engagement, skills development, and participation history.</p>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>&copy; 2025 CYMS. All rights reserved. | Contact Us: support@cyms.org</p>
-        </div>
-    </div>
-</body>
-</html>
+<?php 
+session_start();
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+include 'conn.php';
+
+// ✅ Check if email & session_token are provided
+if (!isset($_GET['email']) || !isset($_GET['session_token'])) {
+    header("Location: https://smartbarangayconnect.com");
+    exit();
+}
+
+$email = $_GET['email'];
+$session_token = $_GET['session_token'];
+
+// ✅ Fetch registerlanding data from Main Domain API
+$api_url = "https://smartbarangayconnect.com/api_get_registerlanding.php";
+$response = file_get_contents($api_url);
+$data = json_decode($response, true);
+
+if (!$data || !is_array($data)) {
+    die("❌ Failed to fetch data from Main Domain.");
+}
+
+// ✅ Find user data by email (para hindi pumasok lahat)
+$userData = null;
+foreach ($data as $row) {
+    if ($row['email'] === $email) {
+        $userData = $row;
+        break; // Stop loop after finding the correct user
+    }
+}
+
+//  If no matching user, deny access
+if (!$userData) {
+    die("❌ No matching user found!");
+}
+
+// ✅ Clear old data for this email (not all data)
+$stmt = $conn->prepare("DELETE FROM registerlanding WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->close();
+
+// ✅ Insert only the matched user
+$stmt = $conn->prepare("INSERT INTO registerlanding 
+    (id, email, first_name, last_name, session_token, birth_date, sex, mobile, working, occupation, house, street, barangay, city) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+if (!$stmt) {
+    die("❌ Query Preparation Failed: " . $conn->error);
+}
+
+$stmt->bind_param("isssssssssssss", 
+    $userData['id'], $userData['email'], $userData['first_name'], $userData['last_name'], $userData['session_token'],
+    $userData['birth_date'], $userData['sex'], $userData['mobile'], $userData['working'], $userData['occupation'],
+    $userData['house'], $userData['street'], $userData['barangay'], $userData['city']
+);
+$stmt->execute();
+$stmt->close();
+
+// ✅ Verify session token in subdomain database
+$sql = "SELECT id, email, first_name, last_name, birth_date, sex, mobile, working, occupation, house, street, barangay, city 
+        FROM registerlanding WHERE email = ? AND session_token = ?";
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    die("❌ Query Preparation Failed: " . $conn->error);
+}
+
+$stmt->bind_param("ss", $email, $session_token);
+if (!$stmt->execute()) {
+    die("❌ Query Execution Failed: " . $stmt->error);
+}
+
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) {
+    die("❌ Invalid session token or email!");
+}
+
+$row = $result->fetch_assoc();
+
+// ✅ Store all data in session
+$_SESSION['id'] = $row['id'];
+$_SESSION['email'] = $email;
+$_SESSION['first_name'] = $row['first_name'];
+$_SESSION['last_name'] = $row['last_name'];
+$_SESSION['session_token'] = $session_token;
+
+// ✅ Additional session data
+$_SESSION['birth_date'] = $row['birth_date'];
+$_SESSION['sex'] = $row['sex'];
+$_SESSION['mobile'] = $row['mobile'];
+$_SESSION['working'] = $row['working'];
+$_SESSION['occupation'] = $row['occupation'];
+$_SESSION['house'] = $row['house'];
+$_SESSION['street'] = $row['street'];
+$_SESSION['barangay'] = $row['barangay'];
+$_SESSION['city'] = $row['city'];
+
+// ✅ Redirect to dashboard
+header("Location: user/landing_page.php");
+exit();
+?>
