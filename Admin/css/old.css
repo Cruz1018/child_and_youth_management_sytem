@@ -1,0 +1,606 @@
+/* Main container for layout */
+
+.content {
+    flex: 1;
+    padding: 20px;
+}
+
+.banner img {
+    width: 100%;
+}
+
+.director-section {
+    margin: 20px 0;
+}
+
+.director-section img {
+    width: 100px;
+    float: left;
+    margin-right: 20px;
+}
+
+.about-section {
+    margin-top: 20px;
+}
+
+.main-container {
+    display: flex;
+}
+
+.director-section {
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.director-section h2 {
+    font-size: 20px;
+    color: #003366;
+    font-weight: bold;
+}
+
+.director-info {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 15px;
+}
+
+.director-info img {
+    width: 250px;
+    /* Set a fixed width for the image */
+    height: 300px;
+    /* Set a fixed height for the image */
+    object-fit: cover;
+    /* Ensure the image covers the area while maintaining aspect ratio */
+    margin-right: 20px;
+    /* Add some space between image and text */
+}
+
+.director-details {
+    max-width: 600px;
+}
+
+.director-details h3 {
+    font-size: 24px;
+    color: #cc0000;
+    font-weight: bold;
+}
+
+.director-details p {
+    font-size: 16px;
+    color: #333;
+}
+
+.read-more {
+    font-size: 14px;
+    color: #003366;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.banner {
+    position: relative;
+    margin-bottom: 20px;
+    /* Set a fixed width and height for the banner container */
+    width: 100%;
+    /* Adjust as needed */
+    height: 250px;
+    /* Adjust as needed */
+    overflow: hidden;
+    /* Hide content that overflows */
+}
+
+.banner>div {
+    /* Target the div containing your dots */
+    position: absolute;
+    bottom: 10px;
+    /* Adjust vertical position as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    /* Center horizontally */
+    z-index: 10;
+    /* Ensure dots are on top */
+}
+
+.banner-img {
+    /* Make images responsive and maintain aspect ratio */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Important for fixed size */
+    display: none;
+}
+
+.banner-img.active {
+    display: block;
+}
+
+
+.prev,
+.next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    margin-top: -22px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+}
+
+.prev {
+    left: 0;
+    border-radius: 3px 0 0 3px;
+}
+
+.next {
+    right: 0;
+    border-radius: 0 3px 3px 0;
+}
+
+.prev:hover,
+.next:hover {
+    background-color: #003366;
+}
+
+.dot {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin: 0 2px;
+    background-color: #bbb;
+    /* Make the dots visible (e.g., gray) */
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+}
+
+/*announcment css*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.grid-container {
+    padding-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+    gap: 10px;
+    width: 1000px;
+}
+
+.box {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.whats-new {
+    grid-column: 1 / 2;
+    background-color: #ff8b7d;
+}
+
+.bids-opportunities {
+    grid-column: 2 / 3;
+    background-color: #7dcfff;
+}
+
+.events {
+    grid-column: 1 / 2;
+    background-color: #bfff87;
+}
+
+.memo-circulars {
+    grid-column: 2 / 3;
+    background-color: #00b4d8;
+}
+
+.draft-mcs {
+    grid-column: 1 / 2;
+    background-color: #87ffb7;
+}
+
+.programs-projects {
+    grid-column: 2 / 3;
+    background-color: #b7cfff;
+}
+
+.social-media {
+    grid-column: 1 / 2;
+    grid-row: span 2;
+    background-color: #ececec;
+}
+
+.gender-development {
+    grid-column: 2 / 3;
+    grid-row: span 2;
+    background-color: #fbe4ff;
+}
+
+h2 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+/*end of announcment css*/
+
+/*About us CSS*/
+
+.about-section {
+    padding: 60px 0;
+    background-color: #fff;
+    text-align: center;
+}
+
+.about-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #00509e;
+}
+
+.about-content p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+/* Team Section */
+.team-section {
+    background-color: #f0f4f8;
+    padding: 60px 0;
+}
+
+.team-section h2 {
+    font-size: 2.5rem;
+    color: #00509e;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.team-cards {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.team-card {
+    background-color: #fff;
+    width: 30%;
+    margin-bottom: 20px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.team-img {
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    height: 300px;
+    object-fit: cover;
+}
+
+.team-card h3 {
+    font-size: 1.5rem;
+    margin: 20px 0 10px 0;
+}
+
+.team-card p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/*end of about us CSS*/
+
+/*Data CSS*/
+
+.header {
+    background-color: #4b8bb8;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+}
+
+/* Main Container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+/* Stats Cards Section */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-10px);
+}
+
+.stat-card h2 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.stat-card p {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* Event Table Section */
+.event-section {
+    margin-top: 40px;
+}
+
+.event-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+}
+
+table th,
+table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #4b8bb8;
+    color: white;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Footer Section */
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: 50px;
+    font-size: 0.9rem;
+}
+
+/*end of data CSS*/
+
+
+.announcement-container1 {
+    width: 350px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.announcement-header1 {
+    background-color: #54a4bc;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 8px 8px 0 0;
+}
+
+.announcement-card1 {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.user-img {
+    width: 100%;
+    height: 70%;
+    margin-bottom: 10px;
+}
+
+.announcement-content1 {
+    text-align: center;
+}
+
+.announcement-content h3 {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.announcement-content1 p {
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.mark-read-btn {
+    background-color: transparent;
+    border: 2px solid #ff8303;
+    color: #ff8303;
+    padding: 5px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.mark-read-btn:hover {
+    background-color: #d46128;
+    color: white;
+}
+
+.pagination1 {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+}
+
+.pagination1 span {
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        /* Fixed position */
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 220px;
+        /* Adjust as needed */
+        background-color: #f1f1f1;
+        z-index: 100;
+        /* Ensure it's on top */
+        transform: translateX(-220px);
+        /* Initially off-canvas */
+        transition: transform 0.3s ease-in-out;
+        /* Add a smooth transition */
+    }
+
+    .sidebar.open {
+        /* Class to be added when sidebar is open */
+        transform: translateX(0);
+        /* Slide in from the left */
+    }
+
+    .sidebar a {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .content {
+        margin-left: 0;
+        /* Reset margin for mobile */
+        padding: 10px;
+        transition: margin-left 0.3s ease;
+        /* Smooth transition when sidebar is toggled */
+    }
+
+    .content.open {
+        margin-left: 220px;
+        /* Adjust for sidebar width */
+    }
+
+    .top-header {
+        margin-left: 0;
+        transition: margin-left 0.3s ease;
+    }
+
+    .top-header.open {
+        margin-left: 220px;
+    }
+
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        /* Add padding for better touch target */
+    }
+
+    .navbar.open {
+        margin-left: 220px;
+    }
+
+    .menu-icon {
+        font-size: 24px;
+        /* Make the menu icon larger */
+    }
+
+    .nav-icons {
+        display: none;
+        /* Hide the nav icons on smaller screens */
+    }
+
+    .banner img {
+        height: 200px;
+        /* Adjust banner image height for mobile */
+        object-fit: cover;
+        /* Maintain aspect ratio */
+    }
+
+    .director-info {
+        flex-direction: column;
+        /* Stack director info vertically */
+        align-items: center;
+    }
+
+    .director-info img {
+        margin-bottom: 10px;
+    }
+
+    footer {
+        /* Add some top margin to the footer to create space */
+        margin-top: 300px;
+        /* Adjust as needed */
+    }
+
+
+
+}
