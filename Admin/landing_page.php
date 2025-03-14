@@ -28,8 +28,8 @@
 
 <body class="vertical  light">
   <div class="wrapper">
-    <?php include '/CYMS/Admin/sections/navbar.php'; ?>
-    <?php include '/CYMS/Admin/sections/sidebar.php'; ?>
+    <?php include '..//Admin/sections/navbar.php'; ?>
+    <?php include '../CYMS/Admin/sections/sidebar.php'; ?>
 
     <main role="main" class="main-content">
       <div class="content">
