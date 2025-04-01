@@ -49,6 +49,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $stmt->close();
     }
+
+    // Handle post deletion
+    if (isset($_POST['delete_post_id'])) {
+        $deletePostId = $_POST['delete_post_id'];
+
+        // Delete post images
+        $stmt = $conn->prepare("SELECT image_path FROM post_images WHERE post_id = ?");
+        $stmt->bind_param("i", $deletePostId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            unlink($row['image_path']);
+        }
+        $stmt->close();
+
+        // Delete post and related images and comments
+        $stmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
+        $stmt->bind_param("i", $deletePostId);
+        $stmt->execute();
+        $stmt->close();
+
+        $stmt = $conn->prepare("DELETE FROM post_images WHERE post_id = ?");
+        $stmt->bind_param("i", $deletePostId);
+        $stmt->execute();
+        $stmt->close();
+
+        $stmt = $conn->prepare("DELETE FROM comments WHERE post_id = ?");
+        $stmt->bind_param("i", $deletePostId);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    // Handle comment deletion
+    if (isset($_POST['delete_comment_id'])) {
+        $deleteCommentId = $_POST['delete_comment_id'];
+
+        // Delete comment image
+        $stmt = $conn->prepare("SELECT image_path FROM comments WHERE id = ?");
+        $stmt->bind_param("i", $deleteCommentId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($row = $result->fetch_assoc()) {
+            unlink($row['image_path']);
+        }
+        $stmt->close();
+
+        // Delete comment
+        $stmt = $conn->prepare("DELETE FROM comments WHERE id = ?");
+        $stmt->bind_param("i", $deleteCommentId);
+        $stmt->execute();
+        $stmt->close();
+    }
 }
 
 // Fetch posts and comments from the database
@@ -194,6 +246,31 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             text-decoration: none;
             cursor: pointer;
         }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+        .dropdown-content a:hover {background-color: #f1f1f1}
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown:hover .dropbtn {
+            background-color: #3e8e41;
+        }
     </style>
 </head>
 <body class="vertical light">
@@ -220,12 +297,21 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                             <?php if ($post['image_path']): ?>
                                 <img src="<?php echo htmlspecialchars($post['image_path']); ?>" class="post-image" alt="Post Image" onclick="openModal(this)">
                             <?php endif; ?>
+                            <div class="dropdown">
+                                <span class="dropbtn">...</span>
+                                <div class="dropdown-content">
+                                    <form action="posting.php" method="post" style="display:inline;">
+                                        <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
+                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')">Delete Post</button>
+                                    </form>
+                                </div>
+                            </div>
 
                             <div class="comments">
                                 <h4>Comments</h4>
                                 <?php
                                 $postId = $post['id'];
-                                $comments = $conn->query("SELECT content, image_path FROM comments WHERE post_id = $postId ORDER BY created_at ASC");
+                                $comments = $conn->query("SELECT id, content, image_path FROM comments WHERE post_id = $postId ORDER BY created_at ASC");
                                 ?>
                                 <?php while ($comment = $comments->fetch_assoc()): ?>
                                     <div class="comment">
@@ -233,6 +319,15 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                                         <?php if ($comment['image_path']): ?>
                                             <img src="<?php echo htmlspecialchars($comment['image_path']); ?>" alt="Comment Image" onclick="openModal(this)">
                                         <?php endif; ?>
+                                        <div class="dropdown">
+                                            <span class="dropbtn">...</span>
+                                            <div class="dropdown-content">
+                                                <form action="posting.php" method="post" style="display:inline;">
+                                                    <input type="hidden" name="delete_comment_id" value="<?php echo $comment['id']; ?>">
+                                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this comment?')">Delete Comment</button>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 <?php endwhile; ?>
                             </div>
