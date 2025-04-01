@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $postId = $stmt->insert_id;
         $stmt->close();
 
-        // Handle image uploads
-        if (isset($_FILES['images']['tmp_name']) && is_array($_FILES['images']['tmp_name'])) {
+        // Handle image uploads if images are provided
+        if (isset($_FILES['images']['tmp_name']) && is_array($_FILES['images']['tmp_name']) && !empty($_FILES['images']['tmp_name'][0])) {
             foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
                 $imagePath = 'uploads/' . basename($_FILES['images']['name'][$key]);
                 move_uploaded_file($tmp_name, $imagePath);
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $postId = $_POST['post_id'];
         $commentImagePath = null;
 
-        // Handle comment image upload
+        // Handle comment image upload if provided
         if (!empty($_FILES['comment_image']['tmp_name'])) {
             $commentImagePath = 'uploads/comments/' . basename($_FILES['comment_image']['name']);
             move_uploaded_file($_FILES['comment_image']['tmp_name'], $commentImagePath);
@@ -246,31 +246,6 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             text-decoration: none;
             cursor: pointer;
         }
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-        .dropdown-content a:hover {background-color: #f1f1f1}
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        .dropdown:hover .dropbtn {
-            background-color: #3e8e41;
-        }
     </style>
 </head>
 <body class="vertical light">
@@ -297,15 +272,10 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                             <?php if ($post['image_path']): ?>
                                 <img src="<?php echo htmlspecialchars($post['image_path']); ?>" class="post-image" alt="Post Image" onclick="openModal(this)">
                             <?php endif; ?>
-                            <div class="dropdown">
-                                <span class="dropbtn">...</span>
-                                <div class="dropdown-content">
-                                    <form action="posting.php" method="post" style="display:inline;">
-                                        <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
-                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')">Delete Post</button>
-                                    </form>
-                                </div>
-                            </div>
+                            <form action="posting.php" method="post" style="display:inline;">
+                                <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')">Delete Post</button>
+                            </form>
 
                             <div class="comments">
                                 <h4>Comments</h4>
@@ -319,15 +289,10 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                                         <?php if ($comment['image_path']): ?>
                                             <img src="<?php echo htmlspecialchars($comment['image_path']); ?>" alt="Comment Image" onclick="openModal(this)">
                                         <?php endif; ?>
-                                        <div class="dropdown">
-                                            <span class="dropbtn">...</span>
-                                            <div class="dropdown-content">
-                                                <form action="posting.php" method="post" style="display:inline;">
-                                                    <input type="hidden" name="delete_comment_id" value="<?php echo $comment['id']; ?>">
-                                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this comment?')">Delete Comment</button>
-                                                </form>
-                                            </div>
-                                        </div>
+                                        <form action="posting.php" method="post" style="display:inline;">
+                                            <input type="hidden" name="delete_comment_id" value="<?php echo $comment['id']; ?>">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this comment?')">Delete Comment</button>
+                                        </form>
                                     </div>
                                 <?php endwhile; ?>
                             </div>

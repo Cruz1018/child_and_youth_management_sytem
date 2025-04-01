@@ -41,7 +41,7 @@ while ($row = $dataResult->fetch_assoc()) {
 // Function to get event recommendations
 function getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $averageAge, $data)
 {
-    global $client;
+    global $client, $conn; // Ensure $conn is accessible
     try {
         $prompt = "You are an event planner AI. Recommend events based on the given user conversation and profiling data:\n";
         
@@ -72,7 +72,15 @@ function getEventRecommendations($conversationHistory, $profilingData, $tagsFreq
         error_log("Full API Response: " . json_encode($response));
 
         if (isset($response['candidates'][0]['content']['parts'][0]['text'])) {
-            return $response['candidates'][0]['content']['parts'][0]['text'];
+            $aiResponse = $response['candidates'][0]['content']['parts'][0]['text'];
+
+            // Save user input and AI response to the database
+            $stmt = $conn->prepare("INSERT INTO ai_responses (user_input, ai_response) VALUES (?, ?)");
+            $stmt->bind_param("ss", end($conversationHistory)['user'], $aiResponse);
+            $stmt->execute();
+            $stmt->close();
+
+            return $aiResponse;
         } else {
             error_log("Unexpected response structure: " . json_encode($response));
             return "Sorry, I couldn't fetch recommendations at the moment.";
@@ -99,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conversationHistory[] = ['user' => $userInput, 'ai' => ''];
         $recommendations = getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $averageAge, $data);
         $conversationHistory[count($conversationHistory) - 1]['ai'] = $recommendations;
+
         echo json_encode(['recommendations' => $recommendations, 'conversationHistory' => $conversationHistory]);
     } else {
         echo json_encode(['recommendations' => 'Please provide some input.']);
@@ -128,90 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- App CSS -->
     <link rel="stylesheet" href="css/main.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <style>
-        /* Add some basic styling for the chatbot interface */
-        #chatbox {
-            width: 100%;
-            height: 500px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            overflow-y: scroll;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        .chat-message {
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            white-space: pre-wrap; /* Preserve spaces and line breaks */
-        }
-
-        .chat-message.user {
-            background-color: #e1f5fe;
-            text-align: right;
-        }
-
-        .chat-message.ai {
-            background-color: #fff9c4;
-        }
-
-        #userInput {
-            width: calc(100% - 22px);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-
-        #sendButton {
-            padding: 10px 20px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #sendButton:hover {
-            background-color: #0056b3;
-        }
-
-        #loadingIndicator {
-            display: none;
-            margin-top: 10px;
-        }
-
-        #downloadButton {
-            padding: 10px 20px;
-            border: none;
-            background-color: #28a745;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        #downloadButton:hover {
-            background-color: #218838;
-        }
-
-        #quickChatButton {
-            padding: 10px 20px;
-            border: none;
-            background-color: #ffc107;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        #quickChatButton:hover {
-            background-color: #e0a800;
-        }
-    </style>
 </head>
 
 <body class="vertical light">
@@ -221,15 +146,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <main role="main" class="main-content">
             <div class="content">
-                <h2>Event Recommendations</h2>
-                <div id="chatbox"></div>
-                <input type="text" id="userInput" placeholder="Ask for event recommendations...">
-                <button id="sendButton" onclick="sendMessage()">Send</button>
-                <button id="quickChatButton" onclick="quickChat()">Get data and recommendation</button>
-                <button id="downloadButton" onclick="downloadResponse()">Download Response</button>
-                <div id="loadingIndicator">
-                    <img src="assets/images/loading.gif" alt="Loading..." width="30">
-                    <span id="loadingMessage">Loading...</span>
+                <h2 class="text-center mb-4">Event Recommendations</h2>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">AI Response</h5>
+                    </div>
+                    <div class="card-body" id="responseBox" style="min-height: 200px; transition: all 0.3s ease;">
+                        <p id="aiResponse" class="text-muted text-center">Click a button below to get started.</p>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button id="recommendButton" class="btn btn-warning mx-2 dynamic-btn" onclick="recommendData()">
+                        <i class="fas fa-lightbulb"></i> Recommend Data
+                    </button>
+                    <button id="showDataButton" class="btn btn-info mx-2 dynamic-btn" onclick="showData()">
+                        <i class="fas fa-database"></i> Show Data
+                    </button>
+                    <button id="createPlanButton" class="btn btn-secondary mx-2 dynamic-btn" onclick="createPlan()">
+                        <i class="fas fa-calendar-alt"></i> Create a Plan
+                    </button>
+                </div>
+                <div id="loadingIndicator" class="text-center mt-4" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p id="loadingMessage" class="text-muted mt-2">Processing your request...</p>
                 </div>
             </div>
         </main>
@@ -277,90 +218,118 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         let averageAge = 0; // Add logic to fetch average age
         let data = []; // Add logic to fetch all data
 
-        function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            if (userInput.trim() === '') {
-                alert('Please enter a message.');
-                return;
-            }
+        function displayResponse(response) {
+            const responseBox = document.getElementById('responseBox');
+            const aiResponse = response.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            responseBox.style.opacity = 0; // Fade out
+            setTimeout(() => {
+                document.getElementById('aiResponse').innerHTML = aiResponse;
+                responseBox.style.opacity = 1; // Fade in
+            }, 300);
+        }
 
-            document.getElementById('loadingIndicator').style.display = 'block';
-            document.getElementById('loadingMessage').innerText = 'Fetching recommendations, please wait...';
+        function toggleLoading(show) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            loadingIndicator.style.display = show ? 'block' : 'none';
+        }
+
+        function recommendData() {
+            const userInput = "Recommend events based on available data";
+            toggleLoading(true);
             fetch('eventrec.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userInput,
-                        conversationHistory,
-                        profilingData,
-                        tagsFrequency,
-                        averageAge,
-                        data
-                    })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userInput,
+                    conversationHistory,
+                    profilingData,
+                    tagsFrequency,
+                    averageAge,
+                    data
                 })
-                .then(response => response.json())
-                .then(data => {
-                    const chatbox = document.getElementById('chatbox');
-                    const aiResponse = data.recommendations.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    chatbox.innerHTML += `<div class="chat-message user"><strong>You:</strong> ${userInput}</div>`;
-                    chatbox.innerHTML += `<div class="chat-message ai"><strong>AI:</strong> ${aiResponse}</div>`;
-                    document.getElementById('userInput').value = '';
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                    conversationHistory = data.conversationHistory;
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while fetching recommendations.');
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResponse(data.recommendations);
+                toggleLoading(false);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while fetching recommendations.');
+                toggleLoading(false);
+            });
         }
 
-        function quickChat() {
-            const userInput = "Recommend events and show data for recommendations";
-            document.getElementById('loadingIndicator').style.display = 'block';
-            document.getElementById('loadingMessage').innerText = 'Fetching recommendations, please wait...';
+        function showData() {
+            const userInput = "Show me the data you have";
+            toggleLoading(true);
             fetch('eventrec.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userInput,
-                        conversationHistory,
-                        profilingData,
-                        tagsFrequency,
-                        averageAge,
-                        data
-                    })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userInput,
+                    conversationHistory,
+                    profilingData,
+                    tagsFrequency,
+                    averageAge,
+                    data
                 })
-                .then(response => response.json())
-                .then(data => {
-                    const chatbox = document.getElementById('chatbox');
-                    const aiResponse = data.recommendations.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    chatbox.innerHTML += `<div class="chat-message user"><strong>You:</strong> ${userInput}</div>`;
-                    chatbox.innerHTML += `<div class="chat-message ai"><strong>AI:</strong> ${aiResponse}</div>`;
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                    conversationHistory = data.conversationHistory;
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while fetching recommendations.');
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResponse(data.recommendations);
+                toggleLoading(false);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while fetching data.');
+                toggleLoading(false);
+            });
         }
 
-        function downloadResponse() {
-            const chatbox = document.getElementById('chatbox').innerText;
-            const blob = new Blob([chatbox], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'AI_Response.txt';
-            link.click();
+        function createPlan() {
+            const userInput = "Create a plan based on the data";
+            toggleLoading(true);
+            fetch('eventrec.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userInput,
+                    conversationHistory,
+                    profilingData,
+                    tagsFrequency,
+                    averageAge,
+                    data
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResponse(data.recommendations);
+                toggleLoading(false);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating a plan.');
+                toggleLoading(false);
+            });
         }
+
+        // Add hover effects and animations for buttons
+        document.querySelectorAll('.dynamic-btn').forEach(button => {
+            button.addEventListener('mouseover', () => {
+                button.style.transform = 'scale(1.1)';
+                button.style.transition = 'transform 0.2s ease';
+            });
+            button.addEventListener('mouseout', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
 
         // Initialize Bootstrap dropdowns
         $(document).ready(function() {

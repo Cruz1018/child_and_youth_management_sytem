@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS ai_responses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_input TEXT NOT NULL,
+    ai_response TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
