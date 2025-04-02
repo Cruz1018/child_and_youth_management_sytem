@@ -6,7 +6,7 @@ require '../conn.php'; // Include the database connection
 use Gemini\Client;
 
 // Initialize Gemini client
-$client = new Client('AIzaSyDPb8HY9Ww2WxI5Qypg2LRx76RRJmWHJ9U');
+$client = new Client('AIzaSyBlspYWAvN0Ze3MfBeA_u1ShgvvA16COgI');
 
 // Fetch tags from the 'user_tags' table
 function fetchTagsFromDatabase($conn) {
@@ -76,13 +76,6 @@ foreach ($apiData as $item) {
     }
 }
 
-// Calculate average age from API data
-$averageAge = !empty($ages) ? array_sum($ages) / count($ages) : 0;
-
-// Log fetched data for debugging
-error_log("Average Age: $averageAge");
-error_log("Sample Data: " . json_encode(array_slice($data, 0, 5)));
-
 // Age group distribution data
 $ageGroupDistribution = [
     ['group' => 'Under 1', 'population' => 25, 'percentage' => '2.10%'],
@@ -94,12 +87,40 @@ $ageGroupDistribution = [
     ['group' => '25 to 29', 'population' => 98, 'percentage' => '8.22%']
 ];
 
+// Use the age group distribution as a reference
+$ageReference = $ageGroupDistribution;
+
+// Log for debugging
+error_log("Age Group Distribution Reference: " . json_encode($ageReference));
+
+// Update profiling data to include the age group distribution
+$profilingData = [
+    'ageDistribution' => $ageReference, // Use age group distribution as reference
+    'tags' => $topTags // Send only top 5 most common tags
+];
+
+// Add facilities and landmarks data
+$facilitiesAndLandmarks = [
+    'landmarks' => [
+        'Quezon Memorial Circle',
+        'Quezon City Hall Complex',
+        'UP-Ayala Technohub Center',
+        'Old Capitol Covered Court',
+    ],
+    'healthcare' => [
+        'Capitol Medical Center, Inc. (CMCI)' => 'A Center for Excellence offering comprehensive medical specialties and services'
+    ]
+];
+
+// Log for debugging
+error_log("Facilities and Landmarks: " . json_encode($facilitiesAndLandmarks));
+
 // Function to get event recommendations
-function getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $averageAge, $data)
+function getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $data, $facilitiesAndLandmarks)
 {
     global $client, $conn, $ageGroupDistribution; // Ensure $ageGroupDistribution is accessible
     try {
-        $prompt = "You are an event planner AI. Recommend events based on the given user conversation and profiling data:\n";
+        $prompt = "You are an event planner AI. Recommend events based on the given user conversation, profiling data, and community facilities:\n";
         
         foreach ($conversationHistory as $entry) {
             $prompt .= "User: " . $entry['user'] . "\nAI: " . $entry['ai'] . "\n";
@@ -107,12 +128,11 @@ function getEventRecommendations($conversationHistory, $profilingData, $tagsFreq
 
         // Append profiling data
         $prompt .= "User: " . end($conversationHistory)['user'] . "\n";
-        $prompt .= "User's Age: " . ($profilingData['age'] ?? "Unknown") . "\n";
+        $prompt .= "User's Age Distribution: " . json_encode($profilingData['ageDistribution']) . "\n";
         $prompt .= "User's Interests: " . (!empty($profilingData['tags']) ? implode(", ", $profilingData['tags']) : "No interests detected") . "\n";
 
         // Include database insights
         $prompt .= "Community Stats:\n";
-        $prompt .= "- Average Age: " . $averageAge . "\n";
         $prompt .= "- Most Common Interests: " . json_encode($tagsFrequency) . "\n";
         $prompt .= "- Sample Data: " . json_encode(array_slice($data, 0, 5)) . "\n"; // Send only a sample to avoid too much text
 
@@ -120,6 +140,14 @@ function getEventRecommendations($conversationHistory, $profilingData, $tagsFreq
         $prompt .= "Age Group Distribution:\n";
         foreach ($ageGroupDistribution as $group) {
             $prompt .= "- " . $group['group'] . ": " . $group['population'] . " (" . $group['percentage'] . ")\n";
+        }
+
+        // Include facilities and landmarks
+        $prompt .= "Community Facilities and Landmarks:\n";
+        $prompt .= "- Landmarks: " . implode(", ", $facilitiesAndLandmarks['landmarks']) . "\n";
+        $prompt .= "- Healthcare: " . implode(", ", array_keys($facilitiesAndLandmarks['healthcare'])) . "\n";
+        foreach ($facilitiesAndLandmarks['healthcare'] as $facility => $description) {
+            $prompt .= "  * $facility: $description\n";
         }
 
         $prompt .= "AI Recommendation:";
@@ -155,15 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userInput = $inputData['userInput'] ?? '';
     $conversationHistory = $inputData['conversationHistory'] ?? [];
     
-    // Assign actual fetched data
-    $profilingData = [
-        'age' => $averageAge, // Use average age from API data
-        'tags' => $topTags // Send only top 5 most common tags
-    ];
-    
     if (!empty($userInput)) {
         $conversationHistory[] = ['user' => $userInput, 'ai' => ''];
-        $recommendations = getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $averageAge, $data);
+        $recommendations = getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $data, $facilitiesAndLandmarks);
         $conversationHistory[count($conversationHistory) - 1]['ai'] = $recommendations;
 
         echo json_encode(['recommendations' => $recommendations, 'conversationHistory' => $conversationHistory]);
@@ -268,12 +290,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         let conversationHistory = [];
         let profilingData = {
-            age: '', // Add logic to fetch age
+            ageDistribution: [], // Add logic to fetch age distribution
             tags: [] // Add logic to fetch tags
         };
 
         let tagsFrequency = {}; // Add logic to fetch tags frequency
-        let averageAge = 0; // Add logic to fetch average age
         let data = []; // Add logic to fetch all data
 
         function displayResponse(response) {
@@ -292,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function recommendData() {
-            const userInput = "Recommend events based on available data";
+            const userInput = "Recommend events based on available data, Show me the tags you have and the average of it";
             toggleLoading(true);
             fetch('eventrec.php', {
                 method: 'POST',
@@ -304,7 +325,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     conversationHistory,
                     profilingData,
                     tagsFrequency,
-                    averageAge,
                     data
                 })
             })
@@ -321,7 +341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function showData() {
-            const userInput = "Show me the data you have";
+            const userInput = "Explain the data you are referencing";
             toggleLoading(true);
             fetch('eventrec.php', {
                 method: 'POST',
@@ -333,13 +353,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     conversationHistory,
                     profilingData,
                     tagsFrequency,
-                    averageAge,
                     data
                 })
             })
             .then(response => response.json())
             .then(data => {
-                displayResponse(data.recommendations);
+                const formattedResponse = data.recommendations.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                displayResponse(formattedResponse); // Use the same display logic as "Recommend Data" and "Create a Plan"
                 toggleLoading(false);
             })
             .catch(error => {
@@ -362,7 +382,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     conversationHistory,
                     profilingData,
                     tagsFrequency,
-                    averageAge,
                     data
                 })
             })

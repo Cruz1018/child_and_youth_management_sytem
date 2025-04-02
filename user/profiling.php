@@ -39,7 +39,7 @@ function fetchResidentData($url) {
     return $data['data'] ?? []; // Return the 'data' array or an empty array if not present
 }
 
-$residentData = fetchResidentData('https://backend-api-5m5k.onrender.com/api/resident');
+$residentData = fetchResidentData('https://backend-api-5m5k.onrender.com/api/cencus'); // Updated API URL
 
 // Filter data for the logged-in user
 $loggedInUser = [
@@ -48,8 +48,8 @@ $loggedInUser = [
 ];
 
 $userData = array_filter($residentData, function ($item) use ($loggedInUser) {
-    return ($item['firstName'] ?? '') === $loggedInUser['firstname'] &&
-           ($item['lastName'] ?? '') === $loggedInUser['lastname'];
+    return (isset($item['firstname']) && strtolower($item['firstname']) === strtolower($loggedInUser['firstname'])) && // Check if 'firstname' exists
+           (isset($item['lastname']) && strtolower($item['lastname']) === strtolower($loggedInUser['lastname'])); // Check if 'lastname' exists
 });
 
 // Get the first matching record
@@ -113,15 +113,17 @@ $userData['tags'] = $userTags ?? 'N/A';
                                     <th>Name</th>
                                     <th>Age</th>
                                     <th>Location</th>
+                                    <th>Contact</th>
                                     <th>Tags</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($userData['firstName'] . ' ' . $userData['lastName']); ?></td>
-                                    <td><?php echo htmlspecialchars($userData['dateofbirth'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars(($userData['address'] ?? '') . ' ' . ($userData['streetname'] ?? '')); ?></td>
+                                    <td><?php echo htmlspecialchars($userData['firstname'] . ' ' . $userData['lastname']); ?></td>
+                                    <td><?php echo htmlspecialchars($userData['age'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars(($userData['housenumber'] ?? '') . ' ' . ($userData['streetname'] ?? '') . ', ' . ($userData['barangay'] ?? '')); ?></td>
+                                    <td><?php echo htmlspecialchars($userData['mobilenumber'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($userData['tags'] ?? 'N/A'); ?></td>
                                     <td>
                                         <button class="btn btn-primary" onclick="editTags('<?php echo htmlspecialchars($userData['tags'] ?? ''); ?>')">Edit Tags</button>

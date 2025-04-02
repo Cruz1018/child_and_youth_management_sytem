@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         echo "<script>alert('Passwords do not match!');</script>";
     } else {
         // Fetch profiling data from the API
-        $apiUrl = 'https://backend-api-5m5k.onrender.com/api/resident';
+        $apiUrl = 'https://backend-api-5m5k.onrender.com/api/cencus'; // Updated API URL
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $apiUrl);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         $userExists = false;
         foreach ($residentData as $resident) {
             if (
-                strtolower($resident['firstName'] ?? '') === strtolower($firstname) &&
-                strtolower($resident['lastName'] ?? '') === strtolower($lastname)
+                strtolower($resident['firstname'] ?? '') === strtolower($firstname) && // Updated key to match new API
+                strtolower($resident['lastname'] ?? '') === strtolower($lastname) // Updated key to match new API
             ) {
                 $userExists = true;
                 break;

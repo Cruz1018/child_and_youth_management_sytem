@@ -12,22 +12,29 @@ function fetchResidentData($url) {
     return $data['data'] ?? []; // Return the 'data' array or an empty array if not present
 }
 
-$residentData = fetchResidentData('https://backend-api-5m5k.onrender.com/api/resident');
+$residentData = fetchResidentData('https://backend-api-5m5k.onrender.com/api/cencus');
 
 // Fetch tags for all users from the database
 $userTags = [];
-$sql = "SELECT user.firstname, user.lastname, user_tags.tags FROM user LEFT JOIN user_tags ON user.id = user_tags.user_id";
+$sql = "SELECT user.firstname, user.lastname, user_tags.tags 
+        FROM user 
+        LEFT JOIN user_tags ON user.id = user_tags.user_id";
 $result = $conn->query($sql);
 
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $key = strtolower(trim($row['firstname'] . ' ' . $row['lastname']));
-        $userTags[$key] = $row['tags'] ?? 'N/A';
+        $userTags[$key] = $row['tags'] ?? 'N/A'; // Ensure 'N/A' is set if tags are null
     }
 }
 
-// Limit data to 100 records
-$limitedData = array_slice($residentData, 0, 100);
+// Limit data to 10 records per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$itemsPerPage = 10;
+$offset = ($page - 1) * $itemsPerPage;
+$totalRecords = count($residentData);
+$totalPages = ceil($totalRecords / $itemsPerPage);
+$limitedData = array_slice($residentData, $offset, $itemsPerPage);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -84,6 +91,7 @@ $limitedData = array_slice($residentData, 0, 100);
                                 <th>Last Name</th>
                                 <th>Middle Name</th>
                                 <th>Date of Birth</th>
+                                <th>Age</th>
                                 <th>Gender</th>
                                 <th>Civil Status</th>
                                 <th>Nationality</th>
@@ -97,19 +105,20 @@ $limitedData = array_slice($residentData, 0, 100);
                             <?php foreach ($limitedData as $item): ?>
                                 <?php
                                 // Match user based on firstname and lastname
-                                $key = strtolower(trim(($item['firstName'] ?? '') . ' ' . ($item['lastName'] ?? '')));
-                                $tags = $userTags[$key] ?? 'N/A';
+                                $key = strtolower(trim(($item['firstname'] ?? '') . ' ' . ($item['lastname'] ?? ''))); // Ensure consistent casing
+                                $tags = $userTags[$key] ?? 'N/A'; // Fetch tags or default to 'N/A'
                                 ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($item['firstName'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($item['lastName'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['firstname'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['lastname'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($item['middlename'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($item['dateofbirth'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['birthday'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['age'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($item['gender'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($item['civilstatus'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($item['nationality'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['occupation'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($item['mobilenumber'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars(($item['address'] ?? '') . ' ' . ($item['streetname'] ?? '')); ?></td>
+                                    <td><?php echo htmlspecialchars(($item['housenumber'] ?? '') . ' ' . ($item['streetname'] ?? '') . ', ' . ($item['barangay'] ?? '')); ?></td>
                                     <td><?php echo htmlspecialchars($item['province'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars($tags); ?></td>
                                 </tr>
@@ -117,6 +126,17 @@ $limitedData = array_slice($residentData, 0, 100);
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination controls -->
+                <nav>
+                    <ul class="pagination">
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+                    </ul>
+                </nav>
             </div>
         </main>
     </div>
