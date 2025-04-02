@@ -1,3 +1,62 @@
+<?php
+include 'conn.php'; // Include database connection
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
+    $email = $_POST['email'];
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    // Validate password confirmation
+    if ($password !== $confirm_password) {
+        echo "<script>alert('Passwords do not match!');</script>";
+    } else {
+        // Fetch profiling data from the API
+        $apiUrl = 'https://backend-api-5m5k.onrender.com/api/resident';
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $apiUrl);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        $data = json_decode($response, true);
+        $residentData = $data['data'] ?? [];
+
+        // Check if the user's first name and last name exist in the profiling API
+        $userExists = false;
+        foreach ($residentData as $resident) {
+            if (
+                strtolower($resident['firstName'] ?? '') === strtolower($firstname) &&
+                strtolower($resident['lastName'] ?? '') === strtolower($lastname)
+            ) {
+                $userExists = true;
+                break;
+            }
+        }
+
+        if ($userExists) {
+            // Hash the password for security
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+
+            // Insert user into the database
+            $stmt = $conn->prepare("INSERT INTO user (firstname, lastname, email, username, password) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $firstname, $lastname, $email, $username, $hashedPassword);
+
+            if ($stmt->execute()) {
+                echo "<script>alert('Registration successful!');</script>";
+            } else {
+                echo "<script>alert('Error: Could not register user.');</script>";
+            }
+
+            $stmt->close();
+        } else {
+            echo "<script>alert('You are not authorized to register.');</script>";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

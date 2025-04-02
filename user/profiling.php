@@ -18,6 +18,43 @@ $stmt->execute();
 $stmt->bind_result($userFirstName, $userLastName);
 $stmt->fetch();
 $stmt->close();
+
+// Fetch tags for the logged-in user
+$sql = "SELECT tags FROM user_tags WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('i', $userId);
+$stmt->execute();
+$stmt->bind_result($userTags);
+$stmt->fetch();
+$stmt->close();
+
+// Fetch profiling data from the resident API
+function fetchResidentData($url) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($curl);
+    curl_close($curl);
+    $data = json_decode($response, true);
+    return $data['data'] ?? []; // Return the 'data' array or an empty array if not present
+}
+
+$residentData = fetchResidentData('https://backend-api-5m5k.onrender.com/api/resident');
+
+// Filter data for the logged-in user
+$loggedInUser = [
+    'firstname' => $userFirstName,
+    'lastname' => $userLastName
+];
+
+$userData = array_filter($residentData, function ($item) use ($loggedInUser) {
+    return ($item['firstName'] ?? '') === $loggedInUser['firstname'] &&
+           ($item['lastName'] ?? '') === $loggedInUser['lastname'];
+});
+
+// Get the first matching record
+$userData = reset($userData);
+$userData['tags'] = $userTags ?? 'N/A';
 ?>
 
 <!DOCTYPE html>
@@ -68,93 +105,34 @@ $stmt->close();
             <div class="content">
                 <h1 class="mt-4">Profiling</h1>
                 <p class="mb-4">Welcome to your profiling page! Here, you can edit your tags to add your interests. Let us know what excites you!</p>
-                <?php
-                $tagsFrequency = [];
-                $totalAge = 0;
-                $count = 0;
-
-                // Fetch the user's profiling data
-                $sql = "SELECT age, tags FROM cy WHERE name = ? AND lastname = ?";
-                $stmt = $conn->prepare($sql);
-
-                if ($stmt === false) {
-                    die('Error preparing the SQL statement: ' . $conn->error);
-                }
-
-                $stmt->bind_param('ss', $userFirstName, $userLastName);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result === false) {
-                    die('Error executing the SQL query: ' . $conn->error);
-                }
-
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        $totalAge += $row["age"];
-                        $count++;
-                        $tags = explode(", ", $row["tags"]);
-                        foreach ($tags as $tag) {
-                            if (isset($tagsFrequency[$tag])) {
-                                $tagsFrequency[$tag]++;
-                            } else {
-                                $tagsFrequency[$tag] = 1;
-                            }
-                        }
-                    }
-                }
-
-                $averageAge = $count > 0 ? $totalAge / $count : 0;
-
-                // Fetch the user's profiling data for display
-                $sql = "SELECT name, age, location, guardian, contacts, tags FROM cy WHERE name = ? AND lastname = ?";
-                $stmt = $conn->prepare($sql);
-
-                if ($stmt === false) {
-                    die('Error preparing the SQL statement: ' . $conn->error);
-                }
-
-                $stmt->bind_param('ss', $userFirstName, $userLastName);
-                $stmt->execute();
-                $result = $stmt->get_result();
-
-                if ($result === false) {
-                    die('Error executing the SQL query: ' . $conn->error);
-                }
-
-                if ($result->num_rows > 0) {
-                    echo "<div class='table-responsive'>
-                            <table class='table table-striped table-hover mt-4' id='profilingTable'>
-                                <thead class='thead-dark'>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Age</th>
-                                        <th>Location</th>
-                                        <th>Guardian</th>
-                                        <th>Contacts</th>
-                                        <th>Tags</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>";
-                    while($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>" . $row["name"] . "</td>
-                                <td>" . $row["age"] . "</td>
-                                <td>" . $row["location"] . "</td>
-                                <td>" . $row["guardian"] . "</td>
-                                <td>" . $row["contacts"] . "</td>
-                                <td>" . $row["tags"] . "</td>
-                                <td><button class='btn btn-primary' onclick='editTags(\"" . $row["tags"] . "\")'>Edit Tags</button></td>
-                              </tr>";
-                    }
-                    echo "</tbody></table></div>";
-                } else {
-                    echo "<p class='mt-4'>No results found. Start adding your interests now!</p>";
-                }
-
-                $conn->close();
-                ?>
+                <?php if ($userData): ?>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mt-4">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Location</th>
+                                    <th>Tags</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($userData['firstName'] . ' ' . $userData['lastName']); ?></td>
+                                    <td><?php echo htmlspecialchars($userData['dateofbirth'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars(($userData['address'] ?? '') . ' ' . ($userData['streetname'] ?? '')); ?></td>
+                                    <td><?php echo htmlspecialchars($userData['tags'] ?? 'N/A'); ?></td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="editTags('<?php echo htmlspecialchars($userData['tags'] ?? ''); ?>')">Edit Tags</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="mt-4">No data found for the logged-in user.</p>
+                <?php endif; ?>
             </div>
         </main>
     </div>
@@ -189,67 +167,8 @@ $stmt->close();
     <script src='js/jquery.dataTables.min.js'></script>
     <script src='js/dataTables.bootstrap4.min.js'></script>
     <script>
-        let conversationHistory = [];
-        let profilingData = {
-            age: '', // Add logic to fetch age
-            tags: [] // Add logic to fetch tags
-        };
-
-        let tagsFrequency = <?php echo json_encode($tagsFrequency); ?>;
-        let averageAge = <?php echo $averageAge; ?>;
-
-        function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            if (userInput.trim() === '') {
-                alert('Please enter a message.');
-                return;
-            }
-
-            // Fetch age and tags from the profiling table
-            const selectedRow = $("#profilingTable tbody tr:visible").first();
-            profilingData.age = selectedRow.find("td:eq(1)").text();
-            profilingData.tags = selectedRow.find("td:eq(5)").text().split(', ');
-
-            fetch('eventrec.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userInput,
-                        conversationHistory,
-                        profilingData,
-                        tagsFrequency,
-                        averageAge
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const chatbox = document.getElementById('chatbox');
-                    chatbox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-                    chatbox.innerHTML += `<p><strong>AI:</strong> ${data.recommendations}</p>`;
-                    document.getElementById('userInput').value = '';
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                    conversationHistory = data.conversationHistory;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while fetching recommendations.');
-                });
-        }
-
-        function insertProfilingSummary() {
-            const summary = `Profiling Data: Age - ${profilingData.age}, Tags - ${profilingData.tags.join(', ')}, Average Age - ${averageAge}, Tags Frequency - ${JSON.stringify(tagsFrequency)}`;
-            document.getElementById('userInput').value = summary;
-        }
-
-        // Initialize Bootstrap dropdowns
-        $(document).ready(function() {
-            $('.dropdown-toggle').dropdown();
-        });
-
         function editTags(currentTags) {
-            const newTags = prompt("tell me what things interest you!", currentTags);
+            const newTags = prompt("Tell me what things interest you!", currentTags);
             if (newTags !== null) {
                 $.ajax({
                     url: 'update_tags.php',

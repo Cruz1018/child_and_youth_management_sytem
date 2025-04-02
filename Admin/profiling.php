@@ -1,7 +1,34 @@
 <?php
 include '../conn.php';
-?>
 
+// Fetch profiling data from the resident API
+function fetchResidentData($url) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($curl);
+    curl_close($curl);
+    $data = json_decode($response, true);
+    return $data['data'] ?? []; // Return the 'data' array or an empty array if not present
+}
+
+$residentData = fetchResidentData('https://backend-api-5m5k.onrender.com/api/resident');
+
+// Fetch tags for all users from the database
+$userTags = [];
+$sql = "SELECT user.firstname, user.lastname, user_tags.tags FROM user LEFT JOIN user_tags ON user.id = user_tags.user_id";
+$result = $conn->query($sql);
+
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $key = strtolower(trim($row['firstname'] . ' ' . $row['lastname']));
+        $userTags[$key] = $row['tags'] ?? 'N/A';
+    }
+}
+
+// Limit data to 100 records
+$limitedData = array_slice($residentData, 0, 100);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,76 +76,47 @@ include '../conn.php';
         <main role="main" class="main-content">
             <div class="content">
                 <h1 class="mt-4">Profiling</h1>
-                <div class="filter-container mb-4">
-                    <div class="col-md-4">
-                        <label for="searchInput" class="form-label">Search:</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="searchIcon"><i class="fa fa-search"></i></span>
-                            </div>
-                            <input type="text" id="searchInput" class="form-control" placeholder="Search by Name, Age, or Tags..." aria-describedby="searchIcon">
-                        </div>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="profilingTable">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Middle Name</th>
+                                <th>Date of Birth</th>
+                                <th>Gender</th>
+                                <th>Civil Status</th>
+                                <th>Nationality</th>
+                                <th>Mobile Number</th>
+                                <th>Address</th>
+                                <th>Province</th>
+                                <th>Tags</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($limitedData as $item): ?>
+                                <?php
+                                // Match user based on firstname and lastname
+                                $key = strtolower(trim(($item['firstName'] ?? '') . ' ' . ($item['lastName'] ?? '')));
+                                $tags = $userTags[$key] ?? 'N/A';
+                                ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($item['firstName'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['lastName'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['middlename'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['dateofbirth'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['gender'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['civilstatus'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['nationality'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($item['mobilenumber'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars(($item['address'] ?? '') . ' ' . ($item['streetname'] ?? '')); ?></td>
+                                    <td><?php echo htmlspecialchars($item['province'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($tags); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-                <?php
-                $tagsFrequency = [];
-                $totalAge = 0;
-                $count = 0;
-
-                $sql = "SELECT age, tags FROM cy";
-                $result = $conn->query($sql);
-
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        $totalAge += $row["age"];
-                        $count++;
-                        $tags = explode(", ", $row["tags"]);
-                        foreach ($tags as $tag) {
-                            if (isset($tagsFrequency[$tag])) {
-                                $tagsFrequency[$tag]++;
-                            } else {
-                                $tagsFrequency[$tag] = 1;
-                            }
-                        }
-                    }
-                }
-
-                $averageAge = $count > 0 ? $totalAge / $count : 0;
-
-                $sql = "SELECT name, age, location, guardian, contacts, tags FROM cy";
-                $result = $conn->query($sql);
-
-                if ($result->num_rows > 0) {
-                    echo "<div class='table-responsive'>
-                            <table class='table table-striped table-hover mt-4' id='profilingTable'>
-                                <thead class='thead-dark'>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Age</th>
-                                        <th>Location</th>
-                                        <th>Guardian</th>
-                                        <th>Contacts</th>
-                                        <th>Tags</th>
-                                    </tr>
-                                </thead>
-                                <tbody>";
-                    while($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>" . $row["name"] . "</td>
-                                <td>" . $row["age"] . "</td>
-                                <td>" . $row["location"] . "</td>
-                                <td>" . $row["guardian"] . "</td>
-                                <td>" . $row["contacts"] . "</td>
-                                <td>" . $row["tags"] . "</td>
-                              </tr>";
-                    }
-                    echo "</tbody></table></div>";
-                } else {
-                    echo "<p class='mt-4'>0 results</p>";
-                }
-
-                $conn->close();
-                ?>
             </div>
         </main>
     </div>
@@ -153,86 +151,25 @@ include '../conn.php';
     <script src='js/jquery.dataTables.min.js'></script>
     <script src='js/dataTables.bootstrap4.min.js'></script>
     <script>
-        $(document).ready(function(){
-            $("#searchInput").on("keyup", function() {
-                var searchValue = $("#searchInput").val().toLowerCase();
-                $("#profilingTable tbody tr").filter(function() {
-                    var name = $(this).find("td:eq(0)").text().toLowerCase();
-                    var age = $(this).find("td:eq(1)").text().toLowerCase();
-                    var tags = $(this).find("td:eq(5)").text().toLowerCase();
-                    $(this).toggle(name.indexOf(searchValue) > -1 || age.indexOf(searchValue) > -1 || tags.indexOf(searchValue) > -1);
-                });
-            });
-
-            // Initialize DataTables with pagination
+        $(document).ready(function() {
+            // Initialize DataTables with pagination of 20 records per page
             $('#profilingTable').DataTable({
                 "paging": true,
                 "lengthChange": false,
-                "searching": false,
+                "searching": true,
                 "ordering": true,
                 "info": true,
                 "autoWidth": false,
-                "pageLength": 5
+                "pageLength": 20
             });
-        });
 
-        let conversationHistory = [];
-        let profilingData = {
-            age: '', // Add logic to fetch age
-            tags: [] // Add logic to fetch tags
-        };
-
-        let tagsFrequency = <?php echo json_encode($tagsFrequency); ?>;
-        let averageAge = <?php echo $averageAge; ?>;
-
-        function sendMessage() {
-            const userInput = document.getElementById('userInput').value;
-            if (userInput.trim() === '') {
-                alert('Please enter a message.');
-                return;
-            }
-
-            // Fetch age and tags from the profiling table
-            const selectedRow = $("#profilingTable tbody tr:visible").first();
-            profilingData.age = selectedRow.find("td:eq(1)").text();
-            profilingData.tags = selectedRow.find("td:eq(5)").text().split(', ');
-
-            fetch('eventrec.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userInput,
-                        conversationHistory,
-                        profilingData,
-                        tagsFrequency,
-                        averageAge
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const chatbox = document.getElementById('chatbox');
-                    chatbox.innerHTML += `<p><strong>You:</strong> ${userInput}</p>`;
-                    chatbox.innerHTML += `<p><strong>AI:</strong> ${data.recommendations}</p>`;
-                    document.getElementById('userInput').value = '';
-                    chatbox.scrollTop = chatbox.scrollHeight;
-                    conversationHistory = data.conversationHistory;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while fetching recommendations.');
+            // Add search functionality
+            $("#searchInput").on("keyup", function() {
+                var searchValue = $(this).val().toLowerCase();
+                $("#profilingTable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
                 });
-        }
-
-        function insertProfilingSummary() {
-            const summary = `Profiling Data: Age - ${profilingData.age}, Tags - ${profilingData.tags.join(', ')}, Average Age - ${averageAge}, Tags Frequency - ${JSON.stringify(tagsFrequency)}`;
-            document.getElementById('userInput').value = summary;
-        }
-
-        // Initialize Bootstrap dropdowns
-        $(document).ready(function() {
-            $('.dropdown-toggle').dropdown();
+            });
         });
     </script>
 </body>

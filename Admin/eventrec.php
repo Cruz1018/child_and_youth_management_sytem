@@ -8,40 +8,96 @@ use Gemini\Client;
 // Initialize Gemini client
 $client = new Client('AIzaSyDPb8HY9Ww2WxI5Qypg2LRx76RRJmWHJ9U');
 
-// Fetch average age from the database
-$averageAgeQuery = "SELECT AVG(age) as average_age FROM cy WHERE age IS NOT NULL";
-$averageAgeResult = $conn->query($averageAgeQuery);
-$averageAge = $averageAgeResult->fetch_assoc()['average_age'] ?? 0;
+// Fetch tags from the 'user_tags' table
+function fetchTagsFromDatabase($conn) {
+    $tagsFrequency = [];
+    $query = "SELECT tags FROM user_tags"; 
+    $result = $conn->query($query);
 
-// Fetch all ages and tags
-$dataQuery = "SELECT age, tags FROM cy WHERE age IS NOT NULL AND tags IS NOT NULL";
-$dataResult = $conn->query($dataQuery);
-$data = [];
-$tagsFrequency = [];
-
-while ($row = $dataResult->fetch_assoc()) {
-    $age = (int) $row['age'];
-    $tags = explode(',', $row['tags']); // Assuming tags are comma-separated
-
-    // Build structured data
-    $data[] = [
-        'age' => $age,
-        'tags' => $tags
-    ];
-
-    // Count tag occurrences
-    foreach ($tags as $tag) {
-        $tag = trim($tag);
-        if (!empty($tag)) {
-            $tagsFrequency[$tag] = ($tagsFrequency[$tag] ?? 0) + 1;
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $tags = explode(',', $row['tags']); // Assuming tags are stored as comma-separated values
+            foreach ($tags as $tag) {
+                $tag = trim($tag);
+                if (!empty($tag)) {
+                    // Increment tag count
+                    $tagsFrequency[$tag] = ($tagsFrequency[$tag] ?? 0) + 1;
+                }
+            }
         }
+    } else {
+        error_log("Error fetching tags from database: " . $conn->error);
+    }
+
+    return $tagsFrequency;
+}
+
+// Fetch tags from the database
+$tagsFrequency = fetchTagsFromDatabase($conn);
+
+if (empty($tagsFrequency)) {
+    error_log("No tags found in the 'user_tags' table.");
+} else {
+    error_log("Tags Frequency: " . json_encode($tagsFrequency)); // Debugging log
+}
+
+// Sort tags by frequency and get the top 5 most frequent tags
+arsort($tagsFrequency);
+$topTags = array_slice(array_keys($tagsFrequency), 0, 5); // Get top 5 most common tags
+
+// Fetch API data for profiling
+function fetchAPIData($url) {
+    $response = file_get_contents($url);
+    if ($response === false) {
+        error_log("Error fetching API data from $url");
+        return [];
+    }
+    $data = json_decode($response, true);
+    return $data['data'] ?? []; // Adjusted to return the 'data' array
+}
+
+$apiData = fetchAPIData('https://backend-api-5m5k.onrender.com/api/resident');
+$data = [];
+$ages = [];
+
+foreach ($apiData as $item) {
+    $age = (int) ($item['age'] ?? 0); // Ensure age is fetched correctly
+    $tags = explode(',', $item['tags'] ?? ''); // Assuming tags are comma-separated
+
+    if ($age > 0) {
+        $ages[] = $age;
+    }
+
+    if (!empty($tags)) {
+        $data[] = [
+            'age' => $age,
+            'tags' => $tags
+        ];
     }
 }
+
+// Calculate average age from API data
+$averageAge = !empty($ages) ? array_sum($ages) / count($ages) : 0;
+
+// Log fetched data for debugging
+error_log("Average Age: $averageAge");
+error_log("Sample Data: " . json_encode(array_slice($data, 0, 5)));
+
+// Age group distribution data
+$ageGroupDistribution = [
+    ['group' => 'Under 1', 'population' => 25, 'percentage' => '2.10%'],
+    ['group' => '1 to 4', 'population' => 86, 'percentage' => '7.21%'],
+    ['group' => '5 to 9', 'population' => 91, 'percentage' => '7.63%'],
+    ['group' => '10 to 14', 'population' => 79, 'percentage' => '6.63%'],
+    ['group' => '15 to 19', 'population' => 85, 'percentage' => '7.13%'],
+    ['group' => '20 to 24', 'population' => 106, 'percentage' => '8.89%'],
+    ['group' => '25 to 29', 'population' => 98, 'percentage' => '8.22%']
+];
 
 // Function to get event recommendations
 function getEventRecommendations($conversationHistory, $profilingData, $tagsFrequency, $averageAge, $data)
 {
-    global $client, $conn; // Ensure $conn is accessible
+    global $client, $conn, $ageGroupDistribution; // Ensure $ageGroupDistribution is accessible
     try {
         $prompt = "You are an event planner AI. Recommend events based on the given user conversation and profiling data:\n";
         
@@ -51,19 +107,21 @@ function getEventRecommendations($conversationHistory, $profilingData, $tagsFreq
 
         // Append profiling data
         $prompt .= "User: " . end($conversationHistory)['user'] . "\n";
-        if (!empty($profilingData['age']) && !empty($profilingData['tags'])) {
-            $prompt .= "User's Age: " . $profilingData['age'] . "\n";
-            $prompt .= "User's Interests: " . implode(", ", $profilingData['tags']) . "\n";
-        } else {
-            $prompt .= "User profiling data unavailable.\n";
-        }
+        $prompt .= "User's Age: " . ($profilingData['age'] ?? "Unknown") . "\n";
+        $prompt .= "User's Interests: " . (!empty($profilingData['tags']) ? implode(", ", $profilingData['tags']) : "No interests detected") . "\n";
 
         // Include database insights
         $prompt .= "Community Stats:\n";
         $prompt .= "- Average Age: " . $averageAge . "\n";
         $prompt .= "- Most Common Interests: " . json_encode($tagsFrequency) . "\n";
         $prompt .= "- Sample Data: " . json_encode(array_slice($data, 0, 5)) . "\n"; // Send only a sample to avoid too much text
-        
+
+        // Include age group distribution
+        $prompt .= "Age Group Distribution:\n";
+        foreach ($ageGroupDistribution as $group) {
+            $prompt .= "- " . $group['group'] . ": " . $group['population'] . " (" . $group['percentage'] . ")\n";
+        }
+
         $prompt .= "AI Recommendation:";
 
         // Send request to AI model
@@ -99,8 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Assign actual fetched data
     $profilingData = [
-        'age' => $averageAge, // Defaulting to average if no specific user data is available
-        'tags' => array_keys($tagsFrequency) // Most common tags in the database
+        'age' => $averageAge, // Use average age from API data
+        'tags' => $topTags // Send only top 5 most common tags
     ];
     
     if (!empty($userInput)) {

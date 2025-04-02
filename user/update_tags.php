@@ -1,36 +1,53 @@
 <?php
 include '../conn.php';
-session_start();
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $userId = $_SESSION['user_id'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
     $tags = $_POST['tags'];
 
-    // Fetch the user's first name and last name from the 'user' table
-    $sql = "SELECT firstname, lastname FROM user WHERE id = ?";
+    // Fetch the user ID based on the first name and last name
+    $sql = "SELECT id FROM user WHERE firstname = ? AND lastname = ?";
     $stmt = $conn->prepare($sql);
-
-    if ($stmt === false) {
-        die('Error preparing the SQL statement: ' . $conn->error);
-    }
-
-    $stmt->bind_param('i', $userId);
+    $stmt->bind_param('ss', $firstname, $lastname);
     $stmt->execute();
-    $stmt->bind_result($userFirstName, $userLastName);
+    $stmt->bind_result($userId);
     $stmt->fetch();
     $stmt->close();
 
-    $sql = "UPDATE cy SET tags = ? WHERE name = ? AND lastname = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('sss', $tags, $userFirstName, $userLastName);
+    if ($userId) {
+        // Check if the user already has tags
+        $sql = "SELECT id FROM user_tags WHERE user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $stmt->store_result();
 
-    if ($stmt->execute()) {
-        echo json_encode(['status' => 'success']);
+        if ($stmt->num_rows > 0) {
+            // Update existing tags
+            $sql = "UPDATE user_tags SET tags = ? WHERE user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('si', $tags, $userId);
+        } else {
+            // Insert new tags
+            $sql = "INSERT INTO user_tags (user_id, tags) VALUES (?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('is', $userId, $tags);
+        }
+
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Tags updated successfully!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update tags.']);
+        }
+
+        $stmt->close();
     } else {
-        echo json_encode(['status' => 'error']);
+        echo json_encode(['success' => false, 'message' => 'User not found.']);
     }
 
-    $stmt->close();
     $conn->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
 }
 ?>
