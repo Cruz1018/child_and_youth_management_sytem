@@ -54,13 +54,14 @@
               <th>Item Name</th>
               <th>Points Required</th>
               <th>Description</th>
+              <th>Image</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <?php
             include '../conn.php';
-            $result = $conn->query("SELECT id, item_name, points_required, description FROM redeemable_items");
+            $result = $conn->query("SELECT id, item_name, points_required, description, image_path FROM redeemable_items");
             if ($result) {
               while ($row = $result->fetch_assoc()) {
                 echo "<tr>
@@ -68,13 +69,16 @@
                         <td>{$row['points_required']}</td>
                         <td>{$row['description']}</td>
                         <td>
+                          <img src='../uploads/{$row['image_path']}' alt='Item Image' class='zoomable-image' style='width: 50px; height: 50px; cursor: pointer;'>
+                        </td>
+                        <td>
                           <button class='btn btn-warning btn-sm edit-item' data-id='{$row['id']}'>Edit</button>
                           <button class='btn btn-danger btn-sm delete-item' data-id='{$row['id']}'>Delete</button>
                         </td>
                       </tr>";
               }
             } else {
-              echo "<tr><td colspan='4'>Error fetching items: " . $conn->error . "</td></tr>";
+              echo "<tr><td colspan='5'>Error fetching items: " . $conn->error . "</td></tr>";
             }
             $conn->close();
             ?>
@@ -88,7 +92,7 @@
   <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <form action="process_redeem.php" method="post">
+        <form action="process_redeem.php" method="post" enctype="multipart/form-data">
           <div class="modal-header">
             <h5 class="modal-title" id="addItemModalLabel">Add Redeemable Item</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -108,6 +112,10 @@
               <label for="description">Description:</label>
               <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
             </div>
+            <div class="form-group">
+              <label for="item_image">Item Image:</label>
+              <input type="file" id="item_image" name="item_image" class="form-control-file" accept="image/*" required>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -122,7 +130,7 @@
   <div class="modal fade" id="editItemModal" tabindex="-1" role="dialog" aria-labelledby="editItemModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <form id="editItemForm">
+        <form id="editItemForm" method="post" action="update_item.php" enctype="multipart/form-data">
           <div class="modal-header">
             <h5 class="modal-title" id="editItemModalLabel">Edit Redeemable Item</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -143,12 +151,34 @@
               <label for="edit_description">Description:</label>
               <textarea id="edit_description" name="description" class="form-control" rows="3" required></textarea>
             </div>
+            <div class="form-group">
+              <label for="edit_item_image">Item Image:</label>
+              <input type="file" id="edit_item_image" name="item_image" class="form-control-file" accept="image/*">
+              <img id="current_item_image" src="" alt="Current Image" style="width: 100px; height: 100px; margin-top: 10px;">
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary">Save changes</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add a modal for zooming the image -->
+  <div class="modal fade" id="imageZoomModal" tabindex="-1" role="dialog" aria-labelledby="imageZoomModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="imageZoomModalLabel">Image Preview</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-center">
+          <img id="zoomedImage" src="" alt="Zoomed Image" style="max-width: 100%; max-height: 80vh;">
+        </div>
       </div>
     </div>
   </div>
@@ -165,6 +195,13 @@
   <script>
     $(document).ready(function () {
       console.log('Document is ready');
+
+      // Handle image click to zoom
+      $('#items-table').on('click', '.zoomable-image', function () {
+        const imageUrl = $(this).attr('src');
+        $('#zoomedImage').attr('src', imageUrl);
+        $('#imageZoomModal').modal('show');
+      });
 
       // Handle delete button click using event delegation
       $('#items-table').on('click', '.delete-item', function () {
@@ -210,6 +247,7 @@
             $('#edit_item_name').val(item.item_name);
             $('#edit_points_required').val(item.points_required);
             $('#edit_description').val(item.description);
+            $('#current_item_image').attr('src', '../uploads/' + item.image_path);
             $('#editItemModal').modal('show');
           },
           error: function (xhr, status, error) {
@@ -222,12 +260,15 @@
       // Handle edit form submission
       $('#editItemForm').on('submit', function (e) {
         e.preventDefault();
-        const formData = $(this).serialize();
+
+        const formData = new FormData(this); // Use FormData to handle file uploads
 
         $.ajax({
           url: 'update_item.php',
           type: 'POST',
-          data: formData, // Send as application/x-www-form-urlencoded
+          data: formData,
+          processData: false, // Prevent jQuery from processing the data
+          contentType: false, // Prevent jQuery from setting the content type
           success: function (response) {
             console.log('Server response:', response);
             if (response.trim() === 'success') {

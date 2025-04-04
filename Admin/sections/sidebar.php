@@ -18,7 +18,7 @@
       <li class="nav-item dropdown">
         <a class="nav-link" href="landing_page.php">
           <i class="fas fa-chart-line"></i>
-          <span class="ml-3 item-text">Admin</span>
+          <span class="ml-3 item-text">Home</span>
         </a>
       </li>
     </ul>
@@ -38,9 +38,6 @@
           <li class="nav-item active">
             <a class="nav-link pl-3" href="posting.php"><span class="ml-1 item-text">Community Forum</span></a>
           </li>
-          <li class="nav-item active">
-            <a class="nav-link pl-3" href="apoints.php"><span class="ml-1 item-text">Points Management</span></a>
-          </li>
         </ul>
       </li>
     </ul>
@@ -52,7 +49,7 @@
         </a>
         <ul class="collapse list-unstyled pl-4 w-100" id="tables">
           <li class="nav-item active">
-            <a class="nav-link pl-3" href="profiling.php"><span class="ml-1 item-text">Profiling</span></a>
+            <a class="nav-link pl-3" href="profiling.php"><span class="ml-1 item-text">Census Profiling</span></a>
           </li>
           <li class="nav-item">
             <a class="nav-link pl-3" href="datareport.php"><span class="ml-1 item-text">Data Report</span></a>
@@ -60,12 +57,41 @@
         </ul>
       </li>
     </ul>
+
     <ul class="navbar-nav flex-fill w-100 mb-2">
-      <li class="nav-item w-100">
-        <a class="nav-link" href="eventrec.php">
+      <li class="nav-item dropdown">
+        <a href="#rewards" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
           <i class="fa-solid fa-wrench"></i>
-          <span class="ml-3 item-text">Event Recommendation</span>
+          <span class="ml-3 item-text">Rewards</span><span class="sr-only">(current)</span>
         </a>
+        <ul class="collapse list-unstyled pl-4 w-100" id="rewards">
+          <li class="nav-item active">
+            <a class="nav-link pl-3" href="apoints.php"><span class="ml-1 item-text">Points Management</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link pl-3" href="ad_redeem.php"><span class="ml-1 item-text">Reward Management</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link pl-3" href="points_log.php"><span class="ml-1 item-text">Points Log</span></a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav flex-fill w-100 mb-2">
+      <li class="nav-item dropdown">
+        <a href="#recommendation" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle nav-link">
+          <i class="fa-solid fa-wrench"></i>
+          <span class="ml-3 item-text">Recommendation</span><span class="sr-only">(current)</span>
+        </a>
+        <ul class="collapse list-unstyled pl-4 w-100" id="recommendation">
+          <li class="nav-item active">
+            <a class="nav-link pl-3" href="eventrec.php"><span class="ml-1 item-text">Event Recommendation</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link pl-3" href="ai_log.php"><span class="ml-1 item-text">Response Log</span></a>
+          </li>
+        </ul>
       </li>
     </ul>
     <p class="text-muted-nav nav-heading mt-4 mb-1">

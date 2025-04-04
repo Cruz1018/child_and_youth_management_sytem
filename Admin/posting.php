@@ -1,4 +1,5 @@
 <?php
+session_start(); // Start the session
 include '../conn.php';
 
 $content = '';
@@ -7,11 +8,17 @@ $imagePaths = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['content'])) {
         $content = $_POST['content'];
+        $userId = $_SESSION['user_id'] ?? null; // Get the logged-in user's ID from the session
+
+        if (!$userId) {
+            die("Error: User not logged in."); // Handle the case where the user is not logged in
+        }
+
         $imagePaths = [];
 
         // Insert post content into the posts table
-        $stmt = $conn->prepare("INSERT INTO posts (content) VALUES (?)");
-        $stmt->bind_param("s", $content);
+        $stmt = $conn->prepare("INSERT INTO posts (content, user_id) VALUES (?, ?)");
+        $stmt->bind_param("si", $content, $userId);
         $stmt->execute();
         $postId = $stmt->insert_id;
         $stmt->close();
@@ -36,6 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['comment_content']) && isset($_POST['post_id'])) {
         $commentContent = $_POST['comment_content'];
         $postId = $_POST['post_id'];
+        $userId = $_SESSION['user_id'] ?? null; // Get the logged-in user's ID from the session
+
+        if (!$userId) {
+            die("Error: User not logged in."); // Handle the case where the user is not logged in
+        }
+
         $commentImagePath = null;
 
         // Handle comment image upload if provided
@@ -44,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             move_uploaded_file($_FILES['comment_image']['tmp_name'], $commentImagePath);
         }
 
-        $stmt = $conn->prepare("INSERT INTO comments (post_id, content, image_path) VALUES (?, ?, ?)");
-        $stmt->bind_param("iss", $postId, $commentContent, $commentImagePath);
+        $stmt = $conn->prepare("INSERT INTO comments (post_id, user_id, content, image_path) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("iiss", $postId, $userId, $commentContent, $commentImagePath);
         $stmt->execute();
         $stmt->close();
     }
@@ -60,7 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         while ($row = $result->fetch_assoc()) {
-            unlink($row['image_path']);
+            if (file_exists($row['image_path'])) { // Check if the file exists
+                unlink($row['image_path']);
+            }
         }
         $stmt->close();
 
@@ -91,7 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
-            unlink($row['image_path']);
+            if (file_exists($row['image_path'])) { // Check if the file exists
+                unlink($row['image_path']);
+            }
         }
         $stmt->close();
 
@@ -104,7 +121,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Fetch posts and comments from the database
-$posts = $conn->query("SELECT p.id, p.content, pi.image_path FROM posts p LEFT JOIN post_images pi ON p.id = pi.post_id ORDER BY p.id DESC");
+$posts = $conn->query("
+    SELECT p.id, p.content, pi.image_path, u.username 
+    FROM posts p 
+    LEFT JOIN post_images pi ON p.id = pi.post_id 
+    LEFT JOIN user u ON p.user_id = u.id 
+    ORDER BY p.id DESC
+");
+
+if (!$posts) {
+    die("Error fetching posts: " . $conn->error);
+}
 
 // Fetch data for sidebar and navbar
 $userResult = $conn->query("SELECT COUNT(*) as count FROM user");
@@ -193,16 +220,17 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             resize: none;
         }
         button {
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: 0.3s;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
         .modal {
             display: none;
@@ -246,7 +274,114 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             text-decoration: none;
             cursor: pointer;
         }
+        /* Character counter styling */
+        .char-counter {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        /* Image preview styling */
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview img {
+            max-width: 100px;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Three dots menu styling */
+        .menu-container {
+            position: relative;
+            display: inline-block;
+        }
+        .menu-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .menu-button::before {
+            content: '⋯'; /* Horizontal three dots */
+            font-size: 24px;
+            color: #000;
+        }
+        .menu-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        .menu-content button {
+            width: 100%;
+            padding: 12px 16px;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #dc3545; /* Red color for delete button */
+        }
+        .menu-content button:hover {
+            background-color: #f1f1f1;
+            color: #c82333; /* Darker red on hover */
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
     </style>
+    <script>
+        // Character counter for text areas
+        function updateCharCounter(textarea, counterId, maxLength) {
+            const counter = document.getElementById(counterId);
+            const remaining = maxLength - textarea.value.length;
+            counter.textContent = `${remaining} characters remaining`;
+        }
+
+        // Image preview for file inputs
+        function previewImages(input, previewContainerId) {
+            const previewContainer = document.getElementById(previewContainerId);
+            previewContainer.innerHTML = ''; // Clear previous previews
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        // Toggle three dots menu
+        function toggleMenu(button) {
+            const menuContent = button.nextElementSibling;
+            menuContent.style.display = menuContent.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
 </head>
 <body class="vertical light">
     <div class="wrapper">
@@ -258,8 +393,12 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                 <h2>Forum - Create a Post</h2>
                 <div class="post-form">
                     <form action="posting.php" method="post" enctype="multipart/form-data">
-                        <textarea name="content" placeholder="What's on your mind?" required></textarea>
-                        <input type="file" name="images[]" multiple>
+                        <textarea name="content" placeholder="What's on your mind?" required 
+                                  oninput="updateCharCounter(this, 'postCharCounter', 500)" maxlength="500"></textarea>
+                        <div id="postCharCounter" class="char-counter">500 characters remaining</div>
+                        <input type="file" name="images[]" multiple 
+                               onchange="previewImages(this, 'postImagePreview')">
+                        <div id="postImagePreview" class="image-preview"></div>
                         <button type="submit">Post</button>
                     </form>
                 </div>
@@ -269,29 +408,44 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                     <?php while ($post = $posts->fetch_assoc()): ?>
                         <div class="post-card">
                             <h3><?php echo nl2br(htmlspecialchars($post['content'])); ?></h3>
+                            <p><strong>Posted by:</strong> <?php echo htmlspecialchars($post['username']); ?></p>
                             <?php if ($post['image_path']): ?>
                                 <img src="<?php echo htmlspecialchars($post['image_path']); ?>" class="post-image" alt="Post Image" onclick="openModal(this)">
                             <?php endif; ?>
-                            <form action="posting.php" method="post" style="display:inline;">
-                                <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
-                                <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')">Delete Post</button>
-                            </form>
+
+                            <!-- Three dots menu -->
+                            <div class="menu-container">
+                                <button class="menu-button" onclick="toggleMenu(this)">⋮</button>
+                                <div class="menu-content">
+                                    <form action="posting.php" method="post">
+                                        <input type="hidden" name="delete_post_id" value="<?php echo $post['id']; ?>">
+                                        <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
 
                             <div class="comments">
                                 <h4>Comments</h4>
                                 <?php
                                 $postId = $post['id'];
-                                $comments = $conn->query("SELECT id, content, image_path FROM comments WHERE post_id = $postId ORDER BY created_at ASC");
+                                $comments = $conn->query("
+                                    SELECT c.id, c.content, c.image_path, u.username 
+                                    FROM comments c 
+                                    LEFT JOIN user u ON c.user_id = u.id 
+                                    WHERE c.post_id = $postId 
+                                    ORDER BY c.created_at ASC
+                                ");
                                 ?>
                                 <?php while ($comment = $comments->fetch_assoc()): ?>
                                     <div class="comment">
                                         <p><?php echo nl2br(htmlspecialchars($comment['content'])); ?></p>
+                                        <p><strong>Commented by:</strong> <?php echo htmlspecialchars($comment['username']); ?></p>
                                         <?php if ($comment['image_path']): ?>
                                             <img src="<?php echo htmlspecialchars($comment['image_path']); ?>" alt="Comment Image" onclick="openModal(this)">
                                         <?php endif; ?>
-                                        <form action="posting.php" method="post" style="display:inline;">
+                                        <form action="posting.php" method="post">
                                             <input type="hidden" name="delete_comment_id" value="<?php echo $comment['id']; ?>">
-                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this comment?')">Delete Comment</button>
+                                            <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this comment?')">Delete</button>
                                         </form>
                                     </div>
                                 <?php endwhile; ?>
@@ -300,8 +454,12 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                             <div class="comment-form">
                                 <form action="posting.php" method="post" enctype="multipart/form-data">
                                     <input type="hidden" name="post_id" value="<?php echo $postId; ?>">
-                                    <textarea name="comment_content" placeholder="Add a comment..." required></textarea>
-                                    <input type="file" name="comment_image">
+                                    <textarea name="comment_content" placeholder="Add a comment..." required 
+                                              oninput="updateCharCounter(this, 'commentCharCounter<?php echo $postId; ?>', 300)" maxlength="300"></textarea>
+                                    <div id="commentCharCounter<?php echo $postId; ?>" class="char-counter">300 characters remaining</div>
+                                    <input type="file" name="comment_image" 
+                                           onchange="previewImages(this, 'commentImagePreview<?php echo $postId; ?>')">
+                                    <div id="commentImagePreview<?php echo $postId; ?>" class="image-preview"></div>
                                     <button type="submit">Comment</button>
                                 </form>
                             </div>

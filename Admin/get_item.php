@@ -3,7 +3,7 @@ include '../conn.php';
 
 if (isset($_GET['id'])) {
   $id = intval($_GET['id']);
-  $stmt = $conn->prepare("SELECT id, item_name, points_required, description FROM redeemable_items WHERE id = ?");
+  $stmt = $conn->prepare("SELECT id, item_name, points_required, description, image_path FROM redeemable_items WHERE id = ?");
   $stmt->bind_param("i", $id);
   $stmt->execute();
   $result = $stmt->get_result();

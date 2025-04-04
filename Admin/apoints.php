@@ -3,65 +3,77 @@
 
 <head>
   <meta charset="utf-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="icon" href="assets/images/unified-lgu-logo.png">
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/fontawesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <title>Add Points</title>
+  <title>Landing Page</title>
+
+  <!-- Simple bar CSS (for scrollbar)-->
   <link rel="stylesheet" href="css/simplebar.css">
-  <link rel="stylesheet" href="css/main.css">
+  <!-- Fonts CSS -->
   <link
     href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;0,900&display=swap"
     rel="stylesheet">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     rel="stylesheet">
+  <!-- Icons CSS -->
   <link rel="stylesheet" href="css/feather.css">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/main.css">
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <link rel="stylesheet" href="css/daterangepicker.css">
+
 </head>
 
 <body class="vertical light">
   <div class="wrapper">
-  <?php include 'sections/navbar.php'; ?>
-  <?php include 'sections/sidebar.php'; ?>
+    <?php include 'sections/navbar.php'; ?>
+    <?php include 'sections/sidebar.php'; ?>
 
     <main role="main" class="main-content">
-      <div class="content">
-        <h2>Manage Points for Users</h2>
-        <form action="process_points.php" method="post">
-          <div class="form-group">
-            <label for="users">Select Users:</label>
-            <div id="users" class="form-control" style="height: auto;">
+      <div class="content container">
+        <h2 class="mb-4">Manage Points for Users</h2>
+        <form action="process_points.php" method="post" class="needs-validation" novalidate>
+          <div class="form-group mb-3">
+            <label for="users" class="form-label">Select Users:</label>
+            <select id="users" name="users[]" class="form-control select2" multiple="multiple" required style="
+    padding-bottom: 100px;
+">
               <?php
               include '../conn.php';
-              $result = $conn->query("SELECT id, username FROM user"); // Assuming 'username' is the correct column name
+              $result = $conn->query("SELECT id, username FROM user");
               if ($result) {
                 while ($row = $result->fetch_assoc()) {
-                  echo "<div><input type='checkbox' name='users[]' value='{$row['id']}'> {$row['username']}</div>";
+                  echo "<option value='{$row['id']}'>{$row['username']}</option>";
                 }
               } else {
-                echo "Error fetching users: " . $conn->error;
+                echo "<option disabled>Error fetching users: " . $conn->error . "</option>";
               }
               $conn->close();
               ?>
-            </div>
+            </select>
+            <div class="invalid-feedback">Please select at least one user.</div>
           </div>
-          <div class="form-group">
-            <label for="action">Action:</label>
+          <div class="form-group mb-3">
+            <label for="action" class="form-label">Action:</label>
             <select id="action" name="action" class="form-control" required>
               <option value="add">Add Points</option>
               <option value="deduct">Deduct Points</option>
             </select>
+            <div class="invalid-feedback">Please select an action.</div>
           </div>
-          <div class="form-group">
-            <label for="points">Points:</label>
+          <div class="form-group mb-3">
+            <label for="points" class="form-label">Points:</label>
             <input type="number" id="points" name="points" class="form-control" required>
+            <div class="invalid-feedback">Please enter a valid number of points.</div>
           </div>
-          <div class="form-group">
-            <label for="date_range">Date Range:</label>
-            <input type="text" id="date_range" name="date_range" class="form-control" required>
+          <div class="form-group mb-3">
+            <label for="reason" class="form-label">Reason:</label>
+            <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
+            <div class="invalid-feedback">Please provide a reason.</div>
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
@@ -69,13 +81,16 @@
     </main>
   </div>
 
+  <!-- Include jQuery and Bootstrap -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="js/bootstrap.bundle.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+  <script src="js/daterangepicker.js"></script>
+  <script src="js/jquery.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/moment.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
   <script src="js/simplebar.min.js"></script>
-  <script src='js/daterangepicker.js'></script>
   <script src='js/jquery.stickOnScroll.js'></script>
   <script src="js/tinycolor-min.js"></script>
   <script src="js/d3.min.js"></script>
@@ -100,21 +115,142 @@
   <script src='js/jquery.dataTables.min.js'></script>
   <script src='js/dataTables.bootstrap4.min.js'></script>
   <script>
-    $(document).ready(function () {
-      // Initialize sidebar
-      $('.sidebar').simplebar();
-
-      // Initialize Bootstrap dropdowns
-      $('.dropdown-toggle').dropdown();
-
-      // Initialize date range picker
-      $('#date_range').daterangepicker({
-        locale: {
-          format: 'YYYY-MM-DD'
+    document.addEventListener('DOMContentLoaded', function() {
+      var options = {
+        series: [{
+          name: 'Count',
+          data: [<?php echo $userCount; ?>, <?php echo $cyCount; ?>, <?php echo $programsCount; ?>]
+        }],
+        chart: {
+          type: 'bar',
+          height: 350
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            endingShape: 'rounded'
+          },
+        },
+        dataLabels: {
+          enabled: false
+        },
+        xaxis: {
+          categories: ['Users', 'CY', 'Programs'],
         }
-      });
+      };
+
+      var chart = new ApexCharts(document.querySelector("#chart"), options);
+      chart.render();
+    });
+
+    // Initialize Bootstrap dropdowns
+    $(document).ready(function() {
+      $('.dropdown-toggle').dropdown();
+    });
+
+    // Initialize Select2 for user selection with enhanced styling
+    $('#users').select2({
+      placeholder: "Select users",
+      allowClear: true,
+      width: '100%', // Ensure dropdown fits the container
+      minimumInputLength: 1, // Enable search after typing at least 1 character
+      dropdownCssClass: 'custom-select2-dropdown' // Add custom class for styling
+    });
+
+    // Remove date range picker initialization
+    // $('#date_range').daterangepicker({
+    //   locale: { format: 'YYYY-MM-DD' }
+    // });
+
+    // Bootstrap form validation
+    (function() {
+      'use strict';
+      var forms = document.querySelectorAll('.needs-validation');
+      Array.prototype.slice.call(forms).forEach(function(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      })();
     });
   </script>
+  <style>
+    /* Custom styling for Select2 dropdown */
+    .custom-select2-dropdown .select2-results__options {
+      max-height: 300px;
+      /* Increase dropdown height */
+      overflow-y: auto;
+    }
+
+    .select2-container {
+      width: 100% !important;
+      /* Ensure full width */
+      max-width: 900px;
+      /* Set a larger maximum width */
+      margin: 20px auto;
+      /* Center the container with some margin */
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      min-height: 500px;
+      /* Further increased height */
+      border: 3px solid #0d6efd;
+      /* Thicker border */
+      border-radius: 12px;
+      /* Larger border radius */
+      background-color: #eaf3ff;
+      /* Softer background */
+      padding: 15px;
+      /* Increased padding */
+      font-size: 18px;
+      /* Larger font size */
+      box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+      /* More prominent shadow */
+      transition: all 0.3s ease-in-out;
+    }
+
+    /* Hover/focus effect */
+    .select2-container--default .select2-selection--multiple:focus,
+    .select2-container--default .select2-selection--multiple:hover {
+      border-color: #084298;
+      background-color: #d9eaff;
+      box-shadow: 0 0 12px rgba(13, 110, 253, 0.5);
+    }
+
+    /* Style for selected items (tags) */
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      background-color: #084298;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      padding: 8px 15px;
+      margin: 8px 8px 0 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* Style the dropdown options */
+    .select2-container--default .select2-results__option {
+      padding: 10px;
+      font-size: 16px;
+      transition: background 0.2s ease;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    /* Custom scrollable dropdown styling */
+    .custom-select2-dropdown .select2-results__options {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+  </style>
 </body>
 
 </html>

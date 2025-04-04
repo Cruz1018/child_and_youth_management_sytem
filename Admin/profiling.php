@@ -46,14 +46,19 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/fontawesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/simplebar.css">
-    <link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100;0,200;0,300;0,400;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/feather.css">
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="path/to/bootstrap.css"> <!-- Add Bootstrap CSS file path here -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .content {
+            padding: 20px;
+        }
         .table thead {
-            background-color: #343a40;
+            background-color: #007bff;
             color: #fff;
         }
         .table tbody tr:hover {
@@ -65,14 +70,15 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
         }
         .filter-container {
             display: flex;
-            justify-content: flex-start; /* Change to flex-start to align items to the left */
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+        }
+        .filter-container .search-bar {
+            width: 300px;
         }
         .pagination {
-            justify-content: flex-start; /* Align pagination to the left */
-        }
-        .table-responsive {
-            overflow-x: hidden; /* Remove horizontal scroll */
+            justify-content: center;
         }
     </style>
 </head>
@@ -82,7 +88,11 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
         <?php include 'sections/sidebar.php'; ?>
         <main role="main" class="main-content">
             <div class="content">
-                <h1 class="mt-4">Profiling</h1>
+                <h1 class="mt-4">Resident Profiling</h1>
+                <div class="filter-container">
+                    <input type="text" id="searchInput" class="form-control search-bar" placeholder="Search residents...">
+                    <button class="btn btn-primary" onclick="location.reload();">Refresh Data</button>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover" id="profilingTable">
                         <thead>
@@ -141,49 +151,20 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
         </main>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/moment.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/simplebar.min.js"></script>
-    <script src='js/daterangepicker.js'></script>
-    <script src='js/jquery.stickOnScroll.js'></script>
-    <script src="js/tinycolor-min.js"></script>
-    <script src="js/d3.min.js"></script>
-    <script src="js/topojson.min.js"></script>
-    <script src="js/Chart.min.js"></script>
-    <script src="js/gauge.min.js"></script>
-    <script src="js/jquery.sparkline.min.js"></script>
-    <script src="js/apexcharts.min.js"></script>
-    <script src="js/apexcharts.custom.js"></script>
-    <script src='js/jquery.mask.min.js'></script>
-    <script src='js/select2.min.js'></script>
-    <script src='js/jquery.steps.min.js'></script>
-    <script src='js/jquery.validate.min.js'></script>
-    <script src='js/jquery.timepicker.js'></script>
-    <script src='js/dropzone.min.js'></script>
-    <script src='js/uppy.min.js'></script>
-    <script src='js/quill.min.js'></script>
-    <script src="js/apps.js"></script>
-    <script src="js/preloader.js"></script>
-    <script src="js/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
-    <script src="js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src='js/jquery.dataTables.min.js'></script>
-    <script src='js/dataTables.bootstrap4.min.js'></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Initialize DataTables with pagination of 20 records per page
             $('#profilingTable').DataTable({
                 "paging": true,
                 "lengthChange": false,
-                "searching": true,
+                "searching": false,
                 "ordering": true,
                 "info": true,
                 "autoWidth": false,
-                "pageLength": 20
+                "pageLength": 10
             });
 
-            // Add search functionality
             $("#searchInput").on("keyup", function() {
                 var searchValue = $(this).val().toLowerCase();
                 $("#profilingTable tbody tr").filter(function() {
