@@ -67,7 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(to right, #00c6ff, #0072ff);
+            background: url('https://media.istockphoto.com/id/2161935288/photo/view-of-city-hall-building-in-manila.jpg?s=612x612&w=0&k=20&c=IU9S2KCJeGv581Wo-kLy1s_owblRW5hKa0A6NMYQtxY=') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -75,27 +76,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             margin: 0;
         }
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             width: 350px;
             text-align: center;
         }
         .container h2 {
             margin-bottom: 20px;
             color: #333;
+            font-size: 24px;
         }
         .container input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 14px;
         }
         .container button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             background: #007bff;
             border: none;
             border-radius: 5px;
@@ -109,10 +112,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         }
         .container p {
             margin-top: 10px;
+            font-size: 14px;
         }
         .container a {
             color: #007bff;
             text-decoration: none;
+            font-size: 14px;
         }
         .container a:hover {
             text-decoration: underline;

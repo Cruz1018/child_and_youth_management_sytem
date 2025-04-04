@@ -6,10 +6,10 @@
     <!-- nav bar -->
     <div class="w-100 mb-4 d-flex">
       <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="#">
-        <img src="assets/images/unified-lgu-logo.png" width="45">
+        <img src="https://smartbarangayconnect.com/assets/img/logo.jpg" width="45">
         <div class="brand-title">
           <br>
-          <span>Children & Youth Management System</span>
+          <span>CYMS</span>
         </div>
       </a>
     </div>
@@ -74,6 +74,9 @@
           <li class="nav-item active">
             <a class="nav-link pl-3" href="points_log.php"><span class="ml-1 item-text">Points Log</span></a>
           </li>
+          <li class="nav-item active">
+            <a class="nav-link pl-3" href="claimed.php"><span class="ml-1 item-text">Claimed Items</span></a>
+          </li>
         </ul>
       </li>
     </ul>
@@ -98,12 +101,6 @@
       <span style="font-size: 10.5px; font-weight: bold; font-family: 'Inter', sans-serif;">SETTINGS</span>
     </p>
     <ul class="navbar-nav flex-fill w-100 mb-2">
-      <li class="nav-item w-100">
-        <a class="nav-link" href="#">
-          <i class="fa-solid fa-screwdriver-wrench"></i>
-          <span class="ml-3 item-text">Settings</span>
-        </a>
-      </li>
       <li class="nav-item w-100">
         <a class="nav-link" href="logout.php">
           <i class="fa-solid fa-sign-out-alt"></i>

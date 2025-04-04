@@ -1,9 +1,5 @@
 <?php
-session_start(); // Start the session
 include '../conn.php';
-
-// Check if the user is logged in and retrieve the username
-$username = $_SESSION['username'] ?? 'Guest';
 
 // Fetch profiling data from the resident API
 function fetchResidentData($url) {
@@ -32,6 +28,11 @@ if ($result) {
     }
 }
 
+// Filter data to include only residents aged 25 or under
+$residentData = array_filter($residentData, function($item) {
+    return isset($item['age']) && $item['age'] <= 25;
+});
+
 // Limit data to 10 records per page
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $itemsPerPage = 10;
@@ -46,7 +47,7 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profiling</title>
-    <link rel="icon" href="assets/images/unified-lgu-logo.png">
+    <link rel="icon" href="https://smartbarangayconnect.com/assets/img/logo.jpg">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/fontawesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <link rel="stylesheet" href="css/simplebar.css">
@@ -93,7 +94,6 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
         <main role="main" class="main-content">
             <div class="content">
                 <h1 class="mt-4">Resident Profiling</h1>
-                <p>Welcome, <?php echo htmlspecialchars($username); ?>!</p> <!-- Display the username -->
                 <div class="filter-container">
                     <input type="text" id="searchInput" class="form-control search-bar" placeholder="Search residents...">
                     <button class="btn btn-primary" onclick="location.reload();">Refresh Data</button>
@@ -220,6 +220,29 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
     $(document).ready(function () {
       $('.dropdown-toggle').dropdown();
     });
+
+    
   </script>
+
+<script>
+        $(document).ready(function() {
+            $('#profilingTable').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "pageLength": 10
+            });
+
+            $("#searchInput").on("keyup", function() {
+                var searchValue = $(this).val().toLowerCase();
+                $("#profilingTable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -4,10 +4,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="icon" href="assets/images/unified-lgu-logo.png">
+  <link rel="icon" href="https://smartbarangayconnect.com/assets/img/logo.jpg">
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <title>Landing Page</title>
+  <title>Item Mangement</title>
 
   <!-- Simple bar CSS (for scrollbar) -->
   <link rel="stylesheet" href="css/simplebar.css">

@@ -6,10 +6,10 @@
     <!-- nav bar -->
     <div class="w-100 mb-4 d-flex">
       <a class="navbar-brand mx-auto mt-2 flex-fill text-center" href="#">
-        <img src="assets/images/unified-lgu-logo.png" width="45">
+        <img src="https://smartbarangayconnect.com/assets/img/logo.jpg" width="45">
         <div class="brand-title">
           <br>
-          <span>Children & Youth Management System</span>
+          <span>CYMS</span>
         </div>
       </a>
     </div>

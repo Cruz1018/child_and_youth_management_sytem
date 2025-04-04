@@ -15,10 +15,7 @@ if (isset($_SESSION['username'])) {
   <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
     <i class="fe fe-menu navbar-toggler-icon"></i>
   </button>
-  <form class="form-inline mr-auto searchform text-muted">
-    <input class="form-control  bg-transparent border-0 pl-4 " type="search" placeholder="Type something....."
-      aria-label="Search">
-  </form>
+  <!-- Removed search form -->
   <ul class="nav">
     <li class="nav-item">
       <span class="nav-link text-muted pr-0 avatar-icon" href="#" id="navbarDropdownMenuLink" role="button"
@@ -30,29 +27,8 @@ if (isset($_SESSION['username'])) {
         </span>
       </span>
     </li>
-    <li class="nav-item">
-      <section class="nav-link text-muted my-2 circle-icon" href="#" data-toggle="modal"
-        data-target=".modal-shortcut">
-        <span class="fe fe-message-circle fe-16"></span>
-      </section>
-    </li>
-    <li class="nav-item nav-notif">
-      <section class="nav-link text-muted my-2 circle-icon" href="#" data-toggle="modal" data-target=".modal-notif">
-        <span class="fe fe-bell fe-16"></span>
-        <span id="notification-count" style="
-          position: absolute; 
-          top: 12px; right: 5px; 
-          font-size:13px; color: white;
-          background-color: red;
-          width:8px;
-          height: 8px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          border-radius: 50px;">
-        </span>
-      </section>
-    </li>
+    <!-- Removed message icon -->
+    <!-- Removed notification icon -->
     <li class="nav-item dropdown">
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
         <a class="dropdown-item" href="#"><i class="fe fe-user"></i>&nbsp;&nbsp;&nbsp;Profile</a>

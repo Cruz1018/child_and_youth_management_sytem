@@ -125,6 +125,7 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forum - Posts</title>
+    <link rel="icon" href="https://smartbarangayconnect.com/assets/img/logo.jpg" type="image/jpeg">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/simplebar.css">
     <link rel="stylesheet" href="css/feather.css">

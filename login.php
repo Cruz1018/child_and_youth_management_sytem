@@ -86,7 +86,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
+            background: url('https://media.istockphoto.com/id/2161935288/photo/view-of-city-hall-building-in-manila.jpg?s=612x612&w=0&k=20&c=IU9S2KCJeGv581Wo-kLy1s_owblRW5hKa0A6NMYQtxY=') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -94,30 +95,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin: 0;
         }
         .login-container {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             width: 350px;
             text-align: center;
         }
         .login-container h2 {
             margin-top: 0;
             color: #333;
+            font-size: 24px;
         }
         .login-container label {
             display: block;
             margin-bottom: 5px;
             color: #555;
             text-align: left;
+            font-size: 14px;
         }
         .login-container input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
+            font-size: 14px;
         }
         .login-container button {
             width: 100%;
@@ -126,28 +130,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border: none;
             border-radius: 5px;
             color: #fff;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
         .login-container button:hover {
             background-color: #0056b3;
         }
-        .login-container .forgot-password {
-            margin-top: 10px;
-            display: block;
-            color: #007BFF;
-            text-decoration: none;
-        }
-        .login-container .forgot-password:hover {
-            text-decoration: underline;
-        }
+        .login-container .forgot-password,
         .login-container .register-link {
             margin-top: 10px;
             display: block;
             color: #007BFF;
             text-decoration: none;
+            font-size: 14px;
         }
+        .login-container .forgot-password:hover,
         .login-container .register-link:hover {
             text-decoration: underline;
         }

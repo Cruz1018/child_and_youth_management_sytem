@@ -10,11 +10,11 @@ session_start();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="icon" href="assets/images/unified-lgu-logo.png">
+  <link rel="icon" href="https://smartbarangayconnect.com/assets/img/logo.jpg">
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.6.0/css/fontawesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <title>Landing Page</title>
+  <title>Home</title>
 
   <!-- Simple bar CSS (for scrollbar)-->
   <link rel="stylesheet" href="css/simplebar.css">
@@ -205,21 +205,6 @@ session_start();
             </div>
           </div>
 
-          <!-- Add System Features section -->
-          <div class="content-section">
-            <h2>System Features</h2>
-            <div class="feature-info">
-              <p>Our system offers a variety of features to enhance your experience:</p>
-              <ul>
-                <li>User-friendly interface</li>
-                <li>Real-time data updates</li>
-                <li>Comprehensive reporting tools</li>
-                <li>Secure and reliable</li>
-                <li>Customizable settings</li>
-              </ul>
-            </div>
-          </div>
-
           <div class="content-section">
             <h2>Quezon City Mayor</h2>
             <div class="director-info">
@@ -230,11 +215,6 @@ session_start();
                 <a href="#" class="read-more">Read more</a>
               </div>
             </div>
-          </div>
-
-          <div class="points-section">
-            <h2>Your Points</h2>
-            <div class="points" id="userPoints">Loading...</div>
           </div>
         </div>
       </section>
