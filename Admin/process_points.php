@@ -1,33 +1,85 @@
 <?php
-include '../conn.php';
+include '../conn.php'; // Include database connection
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $users = $_POST['users'];
-    $action = $_POST['action'];
-    $points = intval($_POST['points']);
-    $reason = $_POST['reason'];
+    // Retrieve form data
+    $userIds = $_POST['users'] ?? [];
+    $action = $_POST['action'] ?? '';
+    $points = intval($_POST['points'] ?? 0);
+    $reason = $_POST['reason'] ?? '';
 
-    $usernames = [];
-    foreach ($users as $user_id) {
-        // Fetch username for display
-        $user_query = $conn->prepare("SELECT username FROM user WHERE id = ?");
-        $user_query->bind_param("i", $user_id);
-        $user_query->execute();
-        $user_query->bind_result($username);
-        $user_query->fetch();
-        $usernames[] = $username;
-        $user_query->close();
+    if (empty($userIds) || empty($action) || $points <= 0 || empty($reason)) {
+        header("Location: apoints.php?status=error");
+        exit;
+    }
 
-        // Insert into points_log
-        $stmt = $conn->prepare("INSERT INTO points_log (user_id, action, points, reason) VALUES (?, ?, ?, ?)");
-        if ($stmt) {
-            $stmt->bind_param("isis", $user_id, $action, $points, $reason);
-            $stmt->execute();
-            $stmt->close();
+    $success = true;
+
+    // Loop through each user and update their points in the user_points table
+    foreach ($userIds as $userId) {
+        // Check if the user already has an entry in the user_points table
+        $checkQuery = "SELECT points FROM user_points WHERE user_id = ?";
+        $checkStmt = $conn->prepare($checkQuery);
+        $checkStmt->bind_param('i', $userId);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+
+        if ($checkStmt->num_rows > 0) {
+            // Update points if the user already exists
+            $updateQuery = $action === 'add' 
+                ? "UPDATE user_points SET points = points + ? WHERE user_id = ?" 
+                : "UPDATE user_points SET points = points - ? WHERE user_id = ?";
+            $updateStmt = $conn->prepare($updateQuery);
+            $updateStmt->bind_param('ii', $points, $userId);
+            if (!$updateStmt->execute()) {
+                $success = false;
+                break;
+            }
+            $updateStmt->close();
+        } else {
+            // Insert new entry if the user does not exist
+            if ($action === 'add') {
+                $insertQuery = "INSERT INTO user_points (user_id, points) VALUES (?, ?)";
+                $insertStmt = $conn->prepare($insertQuery);
+                $insertStmt->bind_param('ii', $userId, $points);
+                if (!$insertStmt->execute()) {
+                    $success = false;
+                    break;
+                }
+                $insertStmt->close();
+            } else {
+                $success = false;
+                break;
+            }
         }
+
+        // Log the points change in user_points_log
+        $logQuery = "INSERT INTO user_points_log (user_id, date, points_change, description) VALUES (?, ?, ?, ?)";
+        $logStmt = $conn->prepare($logQuery);
+        if (!$logStmt) {
+            $success = false;
+            break;
+        }
+        $date = date('Y-m-d');
+        $pointsChange = $action === 'add' ? $points : -$points;
+        $logStmt->bind_param('isis', $userId, $date, $pointsChange, $reason);
+        if (!$logStmt->execute()) {
+            $success = false;
+            break;
+        }
+        $logStmt->close();
+
+        $checkStmt->close();
     }
 
     $conn->close();
+
+    // Redirect back with success message
+    header("Location: apoints.php?status=" . ($success ? "success" : "error"));
+    exit;
+} else {
+    header("Location: apoints.php?status=error");
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -40,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <style>
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #f9f9f9;
+      background-color: #e9f5ff;
       margin: 0;
       padding: 0;
       display: flex;
@@ -49,41 +101,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       height: 100vh;
     }
     .container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
       text-align: center;
-      max-width: 500px;
+      max-width: 600px;
       width: 100%;
     }
     .icon {
-      font-size: 50px;
+      font-size: 60px;
       color: #4caf50;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
     .message {
-      font-size: 22px;
+      font-size: 24px;
       color: #333;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
+      font-weight: 500;
     }
     .details {
-      font-size: 16px;
+      font-size: 18px;
       color: #555;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
     .loading {
-      font-size: 14px;
+      font-size: 16px;
       color: #777;
     }
     .user-list {
-      margin: 10px 0;
+      margin: 15px 0;
       padding: 0;
       list-style: none;
       text-align: left;
     }
     .user-list li {
-      font-size: 14px;
+      font-size: 16px;
       color: #444;
     }
     .highlight {
@@ -110,11 +163,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endforeach; ?>
       </ul>
     </div>
-    <div class="loading">Redirecting to Manage Points page in 3 seconds...</div>
+    <div class="loading">Redirecting to Redeem Points page in 3 seconds...</div>
   </div>
   <script>
     setTimeout(() => {
-      window.location.href = 'apoints.php';
+      window.location.href = 'ad_redeem.php';
     }, 3000);
   </script>
 </body>

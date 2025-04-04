@@ -93,6 +93,66 @@ while ($history_row = $history_result->fetch_assoc()) {
     $history[] = $history_row;
 }
 $history_stmt->close();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    if ($data['action'] === 'claim') {
+        $item_id = $data['item_id'];
+
+        // Fetch item details
+        $item_query = "SELECT item_name, points_required FROM redeemable_items WHERE id = ?";
+        $stmt = $conn->prepare($item_query);
+        $stmt->bind_param("i", $item_id);
+        $stmt->execute();
+        $item_result = $stmt->get_result();
+        $item = $item_result->fetch_assoc();
+        $stmt->close();
+
+        if (!$item) {
+            echo json_encode(['success' => false, 'message' => 'Item not found']);
+            exit;
+        }
+
+        // Check if user has enough points
+        if ($points < $item['points_required']) {
+            echo json_encode(['success' => false, 'message' => 'Not enough points']);
+            exit;
+        }
+
+        // Deduct points and mark item as claimed
+        $conn->begin_transaction();
+        try {
+            $deduct_query = "UPDATE user_points SET points = points - ? WHERE user_id = ?";
+            $deduct_stmt = $conn->prepare($deduct_query);
+            $deduct_stmt->bind_param("ii", $item['points_required'], $user_id);
+            $deduct_stmt->execute();
+            $deduct_stmt->close();
+
+            // Log the points deduction
+            $log_query = "INSERT INTO user_points_log (user_id, date, points_change, description) VALUES (?, ?, ?, ?)";
+            $log_stmt = $conn->prepare($log_query);
+            $description = "Redeemed item: " . $item['item_name'];
+            $log_stmt->bind_param("isis", $user_id, $today, -$item['points_required'], $description);
+            $log_stmt->execute();
+            $log_stmt->close();
+
+            $claim_query = "INSERT INTO claimed_items (user_id, item_id, stub_number) VALUES (?, ?, ?)";
+            $stub_number = uniqid('STUB-');
+            $claim_stmt = $conn->prepare($claim_query);
+            $claim_stmt->bind_param("iis", $user_id, $item_id, $stub_number);
+            $claim_stmt->execute();
+            $claim_stmt->close();
+
+            $conn->commit();
+            echo json_encode(['success' => true, 'stub_number' => $stub_number]);
+        } catch (Exception $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'message' => 'Error processing claim']);
+        }
+        exit;
+    }
+}
 ?>
 
 <!DOCTYPE html>

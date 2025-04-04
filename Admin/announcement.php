@@ -1,3 +1,14 @@
+<?php
+// Start the session
+session_start();
+
+// Check if the user is logged in
+if (!isset($_SESSION['username'])) {
+    // Redirect to login page if not logged in
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -232,6 +243,7 @@
   <div class="wrapper">
     <?php include 'sections/navbar.php'; ?>
     <?php include 'sections/sidebar.php'; ?>
+
 
     <main role="main" class="main-content">
       <div class="content">

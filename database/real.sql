@@ -1,5 +1,4 @@
 
-
 /*Table structure for table `ai_responses` */
 
 DROP TABLE IF EXISTS `ai_responses`;
@@ -85,7 +84,7 @@ CREATE TABLE `comments` (
   PRIMARY KEY (`id`),
   KEY `post_id` (`post_id`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `comments` */
 
@@ -187,12 +186,9 @@ CREATE TABLE `post_images` (
   PRIMARY KEY (`id`),
   KEY `post_id` (`post_id`),
   CONSTRAINT `post_images_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `post_images` */
-
-insert  into `post_images`(`id`,`post_id`,`image_path`) values 
-(20,22,'uploads/360_F_534140463_IgCaQIwo1SscFB5oldx1DxOODFmR1Mhm.webp');
 
 /*Table structure for table `posts` */
 
@@ -203,13 +199,11 @@ CREATE TABLE `posts` (
   `user_id` int(11) NOT NULL,
   `content` text NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `status` enum('pending','approved') DEFAULT 'pending',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `posts` */
-
-insert  into `posts`(`id`,`user_id`,`content`,`created_at`) values 
-(22,10,'yguyg','2025-04-04 01:01:06');
 
 /*Table structure for table `programs` */
 
@@ -261,7 +255,7 @@ CREATE TABLE `user` (
   `username` varchar(100) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user` */
 
@@ -273,7 +267,8 @@ insert  into `user`(`id`,`firstname`,`lastname`,`email`,`username`,`password`) v
 (14,'Monina','Parado','ewewe@gmail.com','user5','$2y$10$vLWvRnqBTQbx73pNNpmSduDZRyfCZDUxQ/iTtVoN.DzL07CtHIEJ.'),
 (15,'Tejie','Ubos','kaito4127@gmail.com','user6','$2y$10$dobMSUtJiZReOD1GNcq6RudGj5HNnsHAwg3PmKAPljKplg8R03sy6'),
 (16,'Maria','Santos','kaito4127@gmail.com','Maria','$2y$10$DWOnNA5NkHTCtgBxnPZ9aO1qre8U8wuNslsf16roizEHTEF6BJ57q'),
-(17,'Juan','Santos','cruz@gmail.com','Juan','$2y$10$mweR.JGAXld6MpYLb2fjmOChamnxauHKSGqGbI5Q3P4hhgQhZop6K');
+(17,'Juan','Santos','cruz@gmail.com','Juan','$2y$10$mweR.JGAXld6MpYLb2fjmOChamnxauHKSGqGbI5Q3P4hhgQhZop6K'),
+(18,'Arman','Ocampo','ewewe@gmail.com','Arman','$2y$10$4dDMQiq5SBCO7KmTZZ7.tu5VCa1HBcx4i.1Qsfs5e4zVAL0oHuVV2');
 
 /*Table structure for table `user_points` */
 
@@ -286,7 +281,7 @@ CREATE TABLE `user_points` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_points_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_points` */
 
@@ -298,7 +293,8 @@ insert  into `user_points`(`id`,`user_id`,`points`) values
 (5,14,7),
 (6,15,12),
 (7,16,7),
-(8,17,7);
+(8,17,7),
+(9,18,5);
 
 /*Table structure for table `user_points_log` */
 
@@ -313,7 +309,7 @@ CREATE TABLE `user_points_log` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_points_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_points_log` */
 
@@ -346,7 +342,8 @@ insert  into `user_points_log`(`id`,`user_id`,`date`,`points_change`,`descriptio
 (26,9,'2025-04-04',100,'Points added'),
 (27,9,'2025-04-04',2,'Points added'),
 (28,9,'2025-04-04',2,'Points added'),
-(29,9,'2025-04-04',2,'Points added');
+(29,9,'2025-04-04',2,'Points added'),
+(30,18,'2025-04-04',5,'Daily login bonus');
 
 /*Table structure for table `user_tags` */
 
@@ -359,12 +356,13 @@ CREATE TABLE `user_tags` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_tags_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_tags` */
 
 insert  into `user_tags`(`id`,`user_id`,`tags`) values 
-(3,17,'Mental health related topics, Basketball');
+(3,17,'Mental health related topics, Basketball'),
+(4,18,'Theater');
 
 /*Table structure for table `volunteer` */
 

@@ -1,0 +1,9 @@
+CREATE TABLE claimed_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    item_id INT NOT NULL,
+    stub_number VARCHAR(50) NOT NULL UNIQUE,
+    claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES redeemable_items(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

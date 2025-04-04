@@ -36,6 +36,20 @@
     <main role="main" class="main-content">
       <div class="content container">
         <h2 class="mb-4">Manage Points for Users</h2>
+
+        <?php if (isset($_GET['status'])): ?>
+          <div class="alert alert-<?php echo $_GET['status'] === 'success' ? 'success' : 'danger'; ?> alert-dismissible fade show" role="alert">
+            <?php
+            if ($_GET['status'] === 'success') {
+              echo "Points have been successfully updated!";
+            } else {
+              echo "An error occurred while updating points. Please try again.";
+            }
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <?php endif; ?>
+
         <form action="process_points.php" method="post" class="needs-validation" novalidate>
           <div class="form-group mb-3">
             <label for="users" class="form-label">Select Users:</label>
