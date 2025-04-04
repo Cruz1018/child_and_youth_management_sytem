@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 include '../conn.php';
 session_start();
 
@@ -108,19 +111,19 @@ $userData['tags'] = $userTags ?? 'N/A';
                 <p class="mb-4">Welcome to your profiling page! Here, you can edit your tags to add your interests. Let us know what excites you!</p>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover" id="profilingTable">
-                        <thead>
-                            <tr>
+                        <thead>3">
+                            <tr>"text" id="searchInput" class="form-control" placeholder="Search...">
                                 <th>Name</th>
                                 <th>Age</th>
                                 <th>Location</th>
-                                <th>Contact</th>
+                                <th>Contact</th>riped table-hover" id="profilingTable">
                                 <th>Tags</th>
                                 <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                            </tr>th>Name</th>
+                        </thead><th>Age</th>
+                        <tbody> <th>Location</th>
                             <?php if ($userData): ?>
-                                <tr>
+                                <tr>Tags</th>
                                     <td><?php echo htmlspecialchars($userData['firstname'] . ' ' . $userData['lastname']); ?></td>
                                     <td><?php echo htmlspecialchars($userData['age'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars(($userData['housenumber'] ?? '') . ' ' . ($userData['streetname'] ?? '') . ', ' . ($userData['barangay'] ?? '')); ?></td>
@@ -128,17 +131,17 @@ $userData['tags'] = $userTags ?? 'N/A';
                                     <td id="userTags"><?php echo htmlspecialchars($userData['tags'] ?? 'N/A'); ?></td>
                                     <td>
                                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editTagsModal">Edit Tags</button>
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <tr>
+                                    </td>?php echo htmlspecialchars($userData['age'] ?? 'N/A'); ?></td>
+                                </tr>td><?php echo htmlspecialchars(($userData['housenumber'] ?? '') . ' ' . ($userData['streetname'] ?? '') . ', ' . ($userData['barangay'] ?? '')); ?></td>
+                            <?php else: ?>php echo htmlspecialchars($userData['mobilenumber'] ?? 'N/A'); ?></td>
+                                <tr><td id="userTags"><?php echo htmlspecialchars($userData['tags'] ?? 'N/A'); ?></td>
                                     <td colspan="6">No data found for the logged-in user.</td>
-                                </tr>
+                                </tr>   <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editTagsModal">Edit Tags</button>
                             <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-
+                        </tbody></tr>
+                    </table><?php else: ?>
+                </div>          <tr>
+                                    <td colspan="6">No data found for the logged-in user.</td>
                 <!-- Modal for editing tags -->
                 <div class="modal fade" id="editTagsModal" tabindex="-1" aria-labelledby="editTagsModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -146,133 +149,150 @@ $userData['tags'] = $userTags ?? 'N/A';
                             <div class="modal-header">
                                 <h5 class="modal-title" id="editTagsModalLabel">Edit Tags</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
+                            </div>fade" id="editTagsModal" tabindex="-1" aria-labelledby="editTagsModalLabel" aria-hidden="true">
                             <div class="modal-body">
                                 <form id="editTagsForm">
                                     <div class="mb-3">
                                         <label for="tagsInput" class="form-label">Tags</label>
                                         <input type="text" class="form-control" id="tagsInput" value="<?php echo htmlspecialchars($userData['tags'] ?? ''); ?>">
                                     </div>
-                                </form>
-                            </div>
+                                </form>"modal-body">
+                            </div>orm id="editTagsForm">
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" id="saveTagsButton">Save changes</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Loader -->
+                                <button type="button" class="btn btn-primary" id="saveTagsButton">Save changes</button>ecialchars($userData['tags'] ?? ''); ?>">
+                            </div>  </div>
+                        </div>  </form>
+                    </div>  </div>
+                </div>      <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <!-- Loader --> <button type="button" class="btn btn-primary" id="saveTagsButton">Save changes</button>
                 <div class="loader">
                     <img src="assets/images/loader.gif" alt="Loading...">
-                </div>
-            </div>
+                </div>div>
+            </div>div>
         </main>
-    </div>
+    </div>      <!-- Loader -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.min.js"></script>loader.gif" alt="Loading...">
     <script src="js/popper.min.js"></script>
     <script src="js/moment.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/simplebar.min.js"></script>
-    <script src='js/daterangepicker.js'></script>
+    <script src='js/daterangepicker.js'></script>.6.0.min.js"></script>
     <script src='js/jquery.stickOnScroll.js'></script>
     <script src="js/tinycolor-min.js"></script>
-    <script src="js/d3.min.js"></script>
-    <script src="js/topojson.min.js"></script>
-    <script src="js/Chart.min.js"></script>
-    <script src="js/gauge.min.js"></script>
+    <script src="js/d3.min.js"></script>ipt>
+    <script src="js/topojson.min.js"></script>>
+    <script src="js/Chart.min.js"></script>ipt>
+    <script src="js/gauge.min.js"></script>cript>
     <script src="js/jquery.sparkline.min.js"></script>
     <script src="js/apexcharts.min.js"></script>
     <script src="js/apexcharts.custom.js"></script>
     <script src='js/jquery.mask.min.js'></script>
     <script src='js/select2.min.js'></script>
     <script src='js/jquery.steps.min.js'></script>
-    <script src='js/jquery.validate.min.js'></script>
+    <script src='js/jquery.validate.min.js'></script>>
     <script src='js/jquery.timepicker.js'></script>
-    <script src='js/dropzone.min.js'></script>
-    <script src='js/uppy.min.js'></script>
-    <script src='js/quill.min.js'></script>
-    <script src="js/apps.js"></script>
-    <script src="js/preloader.js"></script>
+    <script src='js/dropzone.min.js'></script>ript>
+    <script src='js/uppy.min.js'></script>script>
+    <script src='js/quill.min.js'></script>t>
+    <script src="js/apps.js"></script>s'></script>
+    <script src="js/preloader.js"></script>></script>
     <script src="js/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
     <script src="js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src='js/jquery.dataTables.min.js'></script>
     <script src='js/dataTables.bootstrap4.min.js'></script>
-    <script>
-        function editTags(currentTags) {
+    <script>src="js/apps.js"></script>
+        function editTags(currentTags) {pt>
             const newTags = prompt("Tell me what things interest you!", currentTags);
-            if (newTags !== null) {
-                $.ajax({
-                    url: 'update_tags.php',
+            if (newTags !== null) {e.min.js" crossorigin="anonymous"></script>
+                $.ajax({ry.dataTables.min.js'></script>
+                    url: 'update_tags.php',in.js'></script>
                     type: 'POST',
-                    data: {
-                        firstname: '<?php echo $userFirstName; ?>',
+                    data: {urrentTags) {
+                        firstname: '<?php echo $userFirstName; ?>',u!", currentTags);
                         lastname: '<?php echo $userLastName; ?>',
                         tags: newTags
-                    },
+                    },l: 'update_tags.php',
                     success: function(response) {
                         alert('Tags updated successfully!');
-                        location.reload();
-                    },
+                        location.reload();echo $userFirstName; ?>',
+                    },  lastname: '<?php echo $userLastName; ?>',
                     error: function(error) {
                         alert('Error updating tags.');
-                    }
-                });
-            }
-        }
-
+                    }uccess: function(response) {
+                });     alert('Tags updated successfully!');
+            }           location.reload();
+        }           },
+                    error: function(error) {
         document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const table = document.getElementById('profilingTable');
-            searchInput.addEventListener('input', function () {
-                const filter = searchInput.value.toLowerCase();
-                const rows = table.getElementsByTagName('tr');
-                for (let i = 1; i < rows.length; i++) {
-                    const cells = rows[i].getElementsByTagName('td');
-                    let match = false;
-                    for (let j = 0; j < cells.length; j++) {
-                        if (cells[j].textContent.toLowerCase().includes(filter)) {
-                            match = true;
-                            break;
-                        }
-                    }
-                    rows[i].style.display = match ? '' : 'none';
-                }
-            });
+            // Remove the searchInput-related code
+            // const searchInput = document.getElementById('searchInput');
+            // const table = document.getElementById('profilingTable');
+            // searchInput.addEventListener('input', function () {
+            //     const filter = searchInput.value.toLowerCase();
+            //     const rows = table.getElementsByTagName('tr');unction () {
+            //     for (let i = 1; i < rows.length; i++) {);
+            //         const cells = rows[i].getElementsByTagName('td');ElementById('profilingTable');
+            //         let match = false;) {
+            //         for (let j = 0; j < cells.length; j++) {
+            //             if (cells[j].textContent.toLowerCase().includes(filter)) {mentsByTagName('tr');
+            //                 match = true;< rows.length; i++) {
+            //                 break; cells = rows[i].getElementsByTagName('td');
+            //             }et match = false;
+            //         }
+            //         rows[i].style.display = match ? '' : 'none';       if (cells[j].textContent.toLowerCase().includes(filter)) {
+            //     }             match = true;
+            // });                            break;
 
             const saveTagsButton = document.getElementById('saveTagsButton');
             const tagsInput = document.getElementById('tagsInput');
             const userTags = document.getElementById('userTags');
-            const loader = document.querySelector('.loader');
+            const loader = document.querySelector('.loader');            });
 
-            saveTagsButton.addEventListener('click', function () {
-                const newTags = tagsInput.value.trim();
-                if (newTags) {
-                    loader.style.display = 'block';
+            saveTagsButton.addEventListener('click', function () {yId('saveTagsButton');
+                const newTags = tagsInput.value.trim();document.getElementById('tagsInput');
+                if (newTags) {d('userTags');
+                    loader.style.display = 'block';ocument.querySelector('.loader');
                     $.ajax({
-                        url: 'update_tags.php',
-                        type: 'POST',
+                        url: 'update_tags.php',stener('click', function () {
+                        type: 'POST', tagsInput.value.trim();
                         data: {
-                            firstname: '<?php echo $userFirstName; ?>',
-                            lastname: '<?php echo $userLastName; ?>',
-                            tags: newTags
+                            user_id: '<?php echo $userId; ?>', // Ensure user_id is sent= 'block';
+                            tags: newTags({
                         },
                         success: function (response) {
                             loader.style.display = 'none';
-                            userTags.textContent = newTags;
-                            alert('Tags updated successfully!');
-                            $('#editTagsModal').modal('hide');
-                        },
-                        error: function (error) {
+                            console.log('Server Response:', response); // Debugging: Log server responseid: '<?php echo $userId; ?>', // Ensure user_id is sent
+                            try {
+                                const result = JSON.parse(response);
+                                if (result.success) {
+                                    userTags.textContent = newTags;
+                                    alert('Tags updated successfully!');response
+                                    $('#editTagsModal').modal('hide'); // Close modal on success
+                                } else {
+                                    alert('Error: ' + (result.message || 'Failed to update tags.'));f (result.success) {
+                                }ags.textContent = newTags;
+                            } catch (e) {
+                                alert('Unexpected response from the server.');       $('#editTagsModal').modal('hide'); // Close modal on success
+                            }      } else {
+                        },message || 'Failed to update tags.'));
+                        error: function (xhr, status, error) {
                             loader.style.display = 'none';
-                            alert('Error updating tags.');
-                        }
-                    });
-                } else {
-                    alert('Tags cannot be empty.');
-                }
+                            console.error('AJAX Error:', error); // Debugging: Log AJAX error
+                            alert('Error updating tags. Please try again later.');   }
+                        } },
+                    });error: function (xhr, status, error) {
+                } else {'none';
+                    alert('Tags cannot be empty.');           console.error('AJAX Error:', error); // Debugging: Log AJAX error
+                }             alert('Error updating tags. Please try again later.');
+            });             }
+        });       });
+    </script>         } else {
+</body>             alert('Tags cannot be empty.');
+</html>                }
+
             });
         });
     </script>

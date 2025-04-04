@@ -24,6 +24,48 @@ $countStmt->execute();
 $countResult = $countStmt->get_result();
 $totalRecords = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalRecords / $limit);
+
+// Check if the "send_to_api" action is triggered
+if (isset($_POST['send_to_api']) && isset($_POST['response_id'])) {
+    $responseId = intval($_POST['response_id']);
+    
+    // Fetch the specific AI response from the database
+    $fetchQuery = "SELECT * FROM ai_responses WHERE id = ?";
+    $fetchStmt = $conn->prepare($fetchQuery);
+    $fetchStmt->bind_param("i", $responseId);
+    $fetchStmt->execute();
+    $responseResult = $fetchStmt->get_result();
+    $responseData = $responseResult->fetch_assoc();
+
+    if ($responseData) {
+        // Prepare data for the API
+        $apiData = [
+            'user_input' => $responseData['user_input'],
+            'ai_response' => $responseData['ai_response'],
+            'created_at' => $responseData['created_at']
+        ];
+
+        // Send data to the external API
+        $apiUrl = "https://yourdomain.com/api/send_response"; // Replace with the actual API URL
+        $ch = curl_init($apiUrl);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($apiData));
+        $apiResponse = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Handle API response
+        if ($httpCode === 200) {
+            $successMessage = "Data successfully sent to the API.";
+        } else {
+            $errorMessage = "Failed to send data to the API. HTTP Code: $httpCode";
+        }
+    } else {
+        $errorMessage = "Invalid response ID.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -72,6 +114,12 @@ $totalPages = ceil($totalRecords / $limit);
                         <a href="?sort=desc&search=<?php echo htmlspecialchars($search); ?>" class="btn btn-secondary btn-sm">Sort by Newest</a>
                     </div>
                 </div>
+                <!-- Display success or error messages -->
+                <?php if (isset($successMessage)): ?>
+                    <div class="alert alert-success"><?php echo htmlspecialchars($successMessage); ?></div>
+                <?php elseif (isset($errorMessage)): ?>
+                    <div class="alert alert-danger"><?php echo htmlspecialchars($errorMessage); ?></div>
+                <?php endif; ?>
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -87,6 +135,10 @@ $totalPages = ceil($totalRecords / $limit);
                                     <td><?php echo htmlspecialchars(substr($row['ai_response'], 0, 50)) . '...'; ?></td>
                                     <td><?php echo htmlspecialchars($row['created_at']); ?></td>
                                     <td>
+                                        <form method="POST" style="display: inline;">
+                                            <input type="hidden" name="response_id" value="<?php echo $row['id']; ?>">
+                                            <button type="submit" name="send_to_api" class="btn btn-success btn-sm">Send to API</button>
+                                        </form>
                                         <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#responseModal" data-response="<?php echo htmlspecialchars($row['ai_response']); ?>">
                                             More Details
                                         </button>
@@ -151,6 +203,32 @@ $totalPages = ceil($totalRecords / $limit);
                 .replace(/\n/g, '<br>') // Replace newlines with line breaks
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold text between ** **
             modalResponseText.innerHTML = formattedResponse;
+        });
+
+        // Handle "Send to API" button click
+        document.querySelectorAll('button[name="send_to_api"]').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const responseId = this.closest('form').querySelector('input[name="response_id"]').value;
+
+                fetch('api_send_response.php', {
+                    method: 'POST', // Ensure the request method is POST
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ response_id: responseId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Data sent successfully: ' + JSON.stringify(data.data));
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while sending data.');
+                });
+            });
         });
     </script>
 </body>

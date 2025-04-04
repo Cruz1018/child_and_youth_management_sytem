@@ -1,4 +1,5 @@
 
+
 /*Table structure for table `ai_responses` */
 
 DROP TABLE IF EXISTS `ai_responses`;
@@ -9,7 +10,7 @@ CREATE TABLE `ai_responses` (
   `ai_response` text NOT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `ai_responses` */
 
@@ -53,7 +54,10 @@ insert  into `ai_responses`(`id`,`user_input`,`ai_response`,`created_at`) values
 (76,'Recommend events based on available data, Show me the tags you have and the average of it','AI Recommendation:\n\nGiven the user\'s interest in mental health and basketball, combined with the community demographics and available facilities, I recommend the following events:\n\n**1. Youth Basketball Clinic with Mental Wellness Component:**\n\n* **Location:** Old Capitol Covered Court\n* **Target Audience:** Ages 10-19 (This age range has a significant representation in the community and aligns with typical basketball participation ages.)\n* **Description:** This event combines basketball skills training with sessions on mental wellness topics relevant to young people, such as stress management, building resilience, and teamwork.  We could partner with Capitol Medical Center, Inc. (CMCI) to provide qualified speakers or resources for the mental wellness component. This event could be structured as a weekly or monthly series.\n* **Tags:**  Basketball, Mental Health, Youth, Sports, Wellness, Clinic, Training\n\n**2. \"Mindful Movement\" Series at Quezon Memorial Circle:**\n\n* **Location:** Quezon Memorial Circle\n* **Target Audience:**  All ages (adaptable activities for different age groups)\n* **Description:**  This series would offer a variety of activities focusing on physical activity and mindfulness. Examples include guided meditation walks, yoga in the park, Tai Chi, and even mindful basketball drills. This caters to a broad age range and promotes mental wellbeing through accessible physical activity.\n* **Tags:** Mental Health, Mindfulness, Movement, Exercise, Outdoors, Community, All Ages\n\n**3.  Mental Health Awareness Forum/Talk:**\n\n* **Location:** Quezon City Hall Complex or UP-Ayala Technohub Center (depending on target audience and capacity)\n* **Target Audience:** Young Adults (20-29) and potentially parents of younger children\n* **Description:** This event could feature a speaker discussing mental health topics relevant to the target audience, such as managing stress in young adulthood or fostering mental well-being in families.  This event could also include a Q&A session and resource fair connecting attendees with local mental health services (potentially in collaboration with CMCI).\n* **Tags:**  Mental Health, Awareness, Forum, Talk, Young Adults, Parents, Resources\n\n**4. Family Fun Day with Basketball and Wellness Activities:**\n\n* **Location:** Quezon Memorial Circle\n* **Target Audience:** Families with children of all ages\n* **Description:** This event would feature various activities for families, including a kids\' basketball zone, mindfulness activities for adults and children, healthy food vendors, and information booths on local mental health resources. This provides a fun, inclusive environment for families to engage in physical activity and learn about mental wellness.\n* **Tags:** Family, Fun, Basketball, Wellness, Community, Kids, Outdoors\n\n\n**Tags and Average Representation (based on the provided, limited, and incomplete tag data):**\n\nThe current \"Sample Data\" doesn\'t offer enough information for meaningful tag analysis. I\'ve provided relevant tags for the suggested events above.  As more data is gathered (e.g., users tagging their interests, event attendance data), we can generate more accurate tag representation statistics.  For now, the most prominent tags based on user interest and community needs are \"Mental Health\" and \"Basketball.\"\n\n\nThis is a starting point.  With more comprehensive data on user interests and engagement, I can generate more personalized and effective event recommendations.  Gathering data through surveys, feedback forms, and website interactions would be highly beneficial.\n','2025-04-02 20:02:56'),
 (77,'Recommend events based on available data, Show me the tags you have and the average of it','AI Recommendation:\n\nGiven the user\'s interest in mental health and basketball, combined with the community demographics and available facilities, I recommend the following events:\n\n**1. \"Mindful Hoops\" Basketball Clinic (Ages 10-19):**\n\n* **Location:** Old Capitol Covered Court\n* **Description:** This event combines basketball training with mindfulness exercises.  Certified coaches will lead drills and scrimmages, interspersed with sessions focusing on stress management, focus improvement, and team building through mindful practices. This caters to the user\'s interest in both basketball and mental wellness while targeting a significant portion of the community\'s youth population (10-19 age group).\n\n**2. \"Mental Health Awareness 3-on-3 Tournament\" (Ages 15-29):**\n\n* **Location:** Old Capitol Covered Court\n* **Description:**  A 3-on-3 basketball tournament with information booths and resources related to mental health.  Partner with local mental health organizations (potentially leveraging the proximity of Capitol Medical Center) to provide information and support. This event targets the older youth and young adult demographic while raising awareness about mental health.\n\n**3. \"Family Fun Day: Basketball and Mindfulness\" (All Ages):**\n\n* **Location:** Quezon Memorial Circle (ample space for various activities)\n* **Description:** A free community event featuring basketball-themed games and activities suitable for all ages.  Include a dedicated \"Mindfulness Zone\" with guided meditation sessions, relaxation techniques, and resources for families dealing with mental health challenges.  This event fosters community engagement and caters to the diverse age range within the community.\n\n**4. \"Mental Wellness Workshop for Young Adults\" (Ages 20-29):**\n\n* **Location:** Quezon City Hall Complex or UP-Ayala Technohub Center (meeting rooms or conference spaces)\n* **Description:** A workshop specifically designed to address the mental health challenges faced by young adults. Topics can include stress management, anxiety reduction, and building healthy coping mechanisms.  Partner with mental health professionals from Capitol Medical Center or other local organizations. This event caters to the significant 20-29 age group and their expressed interest in mental health.\n\n**Regarding Tags and Averages:**\n\nBased on the provided data, there isn\'t a robust tagging system in place yet.  The sample data shows empty tag fields.  To provide more personalized recommendations in the future, we need to implement a more comprehensive tagging system that captures various interests and event types.  For example, tags could include:\n\n* **Interests:**  Sports, Arts, Music, Health, Education, Technology, etc.\n* **Event Types:**  Workshop, Tournament, Festival, Concert, Clinic, Seminar, etc.\n* **Age Groups:**  Kids, Teens, Adults, Seniors, Families, etc.\n\nOnce a tagging system is implemented and populated with data, we can calculate averages and trends to offer more precise and relevant recommendations. For example, we could determine the average age of attendees for certain event types or the most popular interests within a specific age group. This would allow for highly targeted and effective event planning.\n','2025-04-04 12:24:41'),
 (78,'Explain the data you are referencing','AI Recommendation:\n\nGiven your interest in mental health and basketball, combined with the community demographics and available facilities, I recommend the following events:\n\n**1. \"Mind & Body Wellness Fair\" at Quezon Memorial Circle:**\n\n* **Target Audience:** All ages, with specific activities for different age groups.\n* **Activities:**\n    * Basketball free throw contest and 3-on-3 tournament at the Old Capitol Covered Court (targeting teens and young adults, aligning with the higher population in 15-29 age range).\n    * Mental health awareness booths with information, resources, and short talks by professionals (appealing to your interest and the community\'s common interest).\n    * Kids\' activity area with games and educational activities promoting healthy habits (catering to the significant population of children under 14).\n    * Yoga and mindfulness sessions in the park (general wellness activity for all ages).\n* **Collaboration:** Partner with Capitol Medical Center for health screenings and expert talks, potentially incorporating basketball players as ambassadors for physical and mental wellness.\n\n**2. \"Hoops for Hope\" Basketball Tournament at Old Capitol Covered Court:**\n\n* **Target Audience:** Primarily teenagers and young adults (15-29 age group).\n* **Activities:**\n    * 3-on-3 basketball tournament with different divisions for varying skill levels.\n    * Mental health awareness booth with resources and information specifically geared towards young people.\n    * Post-game talks by athletes or mental health professionals on topics like managing stress and pressure, building resilience, and the importance of mental well-being.\n* **Collaboration:** Invite local schools and basketball clubs to participate, potentially partnering with mental health organizations for resources and speakers.\n\n**3. \"Mental Health Awareness Week\" Film Showing and Discussion at UP-Ayala Technohub Center:**\n\n* **Target Audience:** Primarily young adults and professionals (20-29 age group).\n* **Activities:**\n    * Screening of documentaries or films related to mental health.\n    * Panel discussion with mental health professionals and potentially individuals sharing their personal experiences.\n    * Q&A session with the audience.\n* **Collaboration:** Partner with local universities, mental health organizations, and film clubs.\n\n**Explanation of the data I am referencing:**\n\nI am using the provided age distribution data to understand the dominant age groups within the community.  The user\'s expressed interests (mental health and basketball) guide the event themes.  The available community facilities and landmarks, like Quezon Memorial Circle and Old Capitol Covered Court, influence the location and activity possibilities. Finally, the \"Community Stats\" although limited in the example, could potentially be used to identify broader community interests and trends.  This combination allows me to recommend events relevant to the user\'s preferences and the community\'s makeup and resources.\n','2025-04-04 12:47:20'),
-(79,'Create a plan based on the data','AI Recommendation:\n\nGiven the user\'s interest in mental health and basketball, combined with the community demographics and available facilities, I recommend the following events:\n\n**1. Youth Basketball Clinic & Mental Wellness Workshop:**\n\n* **Target Audience:** Children aged 5-14 and their parents.\n* **Location:** Old Capitol Covered Court.\n* **Description:**  Combine a fun basketball clinic with a mental wellness workshop tailored for both children and parents. The basketball clinic can focus on basic skills, teamwork, and sportsmanship. The mental wellness workshop can address topics like managing stress, building resilience, and fostering positive communication within families, particularly related to sports and competition.  Partnerships with local sports organizations or the Healthcare facility (CMCI) could add value and expertise.\n* **Justification:** Addresses both user interests, caters to a significant portion of the community\'s younger population, and utilizes an existing community facility.\n\n**2. \"Mindfulness on the Court\" Basketball Tournament:**\n\n* **Target Audience:** Young adults aged 15-29.\n* **Location:** Old Capitol Covered Court.\n* **Description:** Organize a basketball tournament with a focus on mental wellness.  Incorporate mindfulness activities like pre-game meditation or yoga sessions.  Include educational booths or short talks on mental health topics during breaks.  Potentially partner with CMCI for mental health resources and professionals.\n* **Justification:** Targets the largest age group in the provided data, combines both interests, and promotes mental well-being through a popular sport.\n\n**3. \"Hoops for Health\" Fundraising Event:**\n\n* **Target Audience:** All ages.\n* **Location:** Quezon Memorial Circle or Old Capitol Covered Court.\n* **Description:** A larger-scale event involving 3-on-3 basketball tournaments, skills competitions, food stalls, and entertainment. Proceeds can be donated to a mental health organization or used to fund future community mental wellness initiatives.  CMCI could be invited to participate and provide information on their services.\n* **Justification:** Engages the broader community, raises awareness about mental health, and generates funds for a worthy cause.  Leverages well-known landmarks for greater visibility.\n\n**4. Mental Health Awareness Talk & Open Gym:**\n\n* **Target Audience:**  20-29 age group.\n* **Location:** Old Capitol Covered Court or a community hall near UP-Ayala Technohub Center (if available).\n* **Description:** Host a talk by a mental health professional followed by an open gym session for basketball. This creates a casual environment for discussing mental health and encourages physical activity as a coping mechanism.\n* **Justification:** Targets a specific age group with high representation and combines both interests. The proximity to the Technohub could attract young professionals.\n\n**Next Steps:**  Gather more detailed data about the community\'s specific mental health needs and preferences.  Survey residents to gauge their interest in these proposed events.  Contact potential partners (CMCI, local sports organizations) to explore collaboration opportunities. Secure necessary permits and resources for the chosen events.\n','2025-04-04 12:48:14');
+(79,'Create a plan based on the data','AI Recommendation:\n\nGiven the user\'s interest in mental health and basketball, combined with the community demographics and available facilities, I recommend the following events:\n\n**1. Youth Basketball Clinic & Mental Wellness Workshop:**\n\n* **Target Audience:** Children aged 5-14 and their parents.\n* **Location:** Old Capitol Covered Court.\n* **Description:**  Combine a fun basketball clinic with a mental wellness workshop tailored for both children and parents. The basketball clinic can focus on basic skills, teamwork, and sportsmanship. The mental wellness workshop can address topics like managing stress, building resilience, and fostering positive communication within families, particularly related to sports and competition.  Partnerships with local sports organizations or the Healthcare facility (CMCI) could add value and expertise.\n* **Justification:** Addresses both user interests, caters to a significant portion of the community\'s younger population, and utilizes an existing community facility.\n\n**2. \"Mindfulness on the Court\" Basketball Tournament:**\n\n* **Target Audience:** Young adults aged 15-29.\n* **Location:** Old Capitol Covered Court.\n* **Description:** Organize a basketball tournament with a focus on mental wellness.  Incorporate mindfulness activities like pre-game meditation or yoga sessions.  Include educational booths or short talks on mental health topics during breaks.  Potentially partner with CMCI for mental health resources and professionals.\n* **Justification:** Targets the largest age group in the provided data, combines both interests, and promotes mental well-being through a popular sport.\n\n**3. \"Hoops for Health\" Fundraising Event:**\n\n* **Target Audience:** All ages.\n* **Location:** Quezon Memorial Circle or Old Capitol Covered Court.\n* **Description:** A larger-scale event involving 3-on-3 basketball tournaments, skills competitions, food stalls, and entertainment. Proceeds can be donated to a mental health organization or used to fund future community mental wellness initiatives.  CMCI could be invited to participate and provide information on their services.\n* **Justification:** Engages the broader community, raises awareness about mental health, and generates funds for a worthy cause.  Leverages well-known landmarks for greater visibility.\n\n**4. Mental Health Awareness Talk & Open Gym:**\n\n* **Target Audience:**  20-29 age group.\n* **Location:** Old Capitol Covered Court or a community hall near UP-Ayala Technohub Center (if available).\n* **Description:** Host a talk by a mental health professional followed by an open gym session for basketball. This creates a casual environment for discussing mental health and encourages physical activity as a coping mechanism.\n* **Justification:** Targets a specific age group with high representation and combines both interests. The proximity to the Technohub could attract young professionals.\n\n**Next Steps:**  Gather more detailed data about the community\'s specific mental health needs and preferences.  Survey residents to gauge their interest in these proposed events.  Contact potential partners (CMCI, local sports organizations) to explore collaboration opportunities. Secure necessary permits and resources for the chosen events.\n','2025-04-04 12:48:14'),
+(80,'Recommend events based on available data, Show me the tags you have and the average of it','AI Recommendation:\n\nGiven the user\'s interests and the available community facilities and demographics, I recommend the following events:\n\n**For the User (likely in the 20-29 age range given their stated interests and the higher representation of that demographic):**\n\n* **\"Mindfulness and Basketball\" Workshop at the Old Capitol Covered Court:** This event combines the user\'s interest in mental health and basketball.  The workshop could involve mindfulness exercises incorporated into basketball drills and gameplay, promoting both physical and mental well-being.  This could be a ticketed event or offered free with sponsorship from the Capitol Medical Center, highlighting their mental health services.\n* **Improv Theater Workshop at Quezon City Hall Complex:**  Leveraging the user\'s interest in theater, this workshop could introduce the fundamentals of improv, fostering creativity and spontaneity. This event can cater to a wider age range and could be advertised through local community channels and online platforms.\n* **\"Mental Health Awareness\" Talk/Panel Discussion at UP-Ayala Technohub Center:**  This event could feature experts discussing mental health topics relevant to young adults, including stress management, anxiety, and building resilience. The Technohub provides a modern and accessible venue for this type of event.\n\n**For the Wider Community (considering the age demographics):**\n\n* **Family Fun Day at Quezon Memorial Circle:**  This event could include a variety of activities catering to different age groups, such as sports clinics (basketball for kids), arts and crafts, and live performances.  This leverages the large open space of the Circle.\n* **Children\'s Theater Production at Quezon City Hall Complex:** Given the significant population of children under 14, a children\'s theater production would be a popular and engaging activity. This could be a collaborative effort with local schools and theater groups.\n\n**Tags and Average:**\n\nMy tags are derived from user interests and community data. Currently, the tags are:  \"Mental health related topics\", \"Basketball\", \"Theater\", \"Family Activities\", \"Children\'s Activities\".  Since each tag appears once in the limited sample data provided, the average occurrence of each tag is 1.  (Note:  A more robust dataset would yield more insightful tag averages and event recommendations.)\n\n\n**Further Data Needed for Better Recommendations:**\n\n* **More specific user interests:**  Knowing sub-topics within mental health (e.g., stress management, mindfulness), preferred types of theater (e.g., musicals, drama), and level of basketball experience would allow for more targeted recommendations.\n* **More comprehensive community data:** Information about existing community programs, events, and club activities would help avoid redundancy and identify potential partnerships.\n* **Budget information:** Knowing the budget available for events would help determine the scale and feasibility of different options.\n* **Feedback on recommendations:** User feedback on these initial recommendations would help refine future suggestions.\n','2025-04-04 21:29:45'),
+(81,'Explain the data you are referencing','AI Recommendation:\n\nGiven the user\'s interest in mental health, basketball, theater, and the available community facilities, I recommend the following events:\n\n**1. Youth Basketball Tournament & Mental Wellness Fair:**\n\n* **Target Audience:**  Ages 10-24 (aligns with a significant portion of the user base)\n* **Location:** Old Capitol Covered Court\n* **Description:** Combine a fun basketball tournament with mental wellness booths and activities.  Include information sessions on stress management techniques, mindfulness exercises, and resources for mental health support. Partner with Capitol Medical Center, Inc. (CMCI) for professional presence and credibility. This caters to both the basketball and mental health interests, promoting physical and mental well-being.\n\n**2. \"Mindful Movement\" Workshop Series:**\n\n* **Target Audience:** Ages 15-29 (flexible based on specific workshop type, can be adjusted for younger ages with parent/guardian participation)\n* **Location:** Quezon Memorial Circle or a community center.\n* **Description:** Offer a series of workshops exploring the intersection of physical activity and mental health. This could include yoga, tai chi, dance therapy, or other movement-based practices that promote mindfulness and emotional regulation.\n\n**3. Community Theater Production with a Mental Health Theme:**\n\n* **Target Audience:**  All ages (can have different roles for different age groups)\n* **Location:** Quezon City Hall Complex or a suitable community theater space.\n* **Description:**  Produce a play or musical that addresses mental health topics in a sensitive and engaging way. This provides a creative outlet for the community, raises awareness, and potentially reduces stigma.  Involve local theater groups and potentially collaborate with CMCI for expert input on the script and related discussions.\n\n**4. Open Mic Night - \"Express Yourself\":**\n\n* **Target Audience:** Ages 15-29 (primarily, but open to others)\n* **Location:** UP-Ayala Technohub Center (or a cafe with a suitable space)\n* **Description:**  Host an open mic night focused on self-expression through poetry, music, storytelling, and comedy. Encourage participants to share their experiences and perspectives on mental health, or simply express themselves creatively. This provides a safe and supportive space for emotional release and connection.\n\n**5. Movie Screening and Discussion - Mental Health Documentary:**\n\n* **Target Audience:** All ages (depending on the chosen documentary)\n* **Location:** Quezon City Hall Complex or a community center\n* **Description:** Screen a thought-provoking documentary about mental health followed by a facilitated discussion with a mental health professional from CMCI or a related organization. This offers an educational and accessible way to engage the community in dialogue about mental health.\n\n\nI am referencing the provided age distribution, user interests (mental health, basketball, theater), and community facilities including the Old Capitol Covered Court, Quezon Memorial Circle, Quezon City Hall Complex, UP-Ayala Technohub Center, and Capitol Medical Center, Inc.  The community statistics and sample data are currently limited and not heavily informing these recommendations, but future data with richer interest and age correlation details will improve recommendations.\n','2025-04-04 21:32:08'),
+(82,'Create a plan based on the data','AI Recommendation:\n\nGiven the user\'s interests and the community demographics and facilities, I recommend the following events:\n\n**1. Youth Basketball Tournament & Mental Wellness Fair:**\n\n* **Target Audience:** Ages 10-24 (Significant portion of the user base)\n* **Location:** Old Capitol Covered Court\n* **Activities:** 3-on-3 basketball tournament, mental health awareness booths, short talks on stress management and healthy coping mechanisms, resources for mental health support.  Partner with Capitol Medical Center for expert speakers and informational materials.\n* **Rationale:** Combines the user\'s interest in basketball with mental health topics, catering to a large segment of the community. The Old Capitol Covered Court provides a suitable venue.\n\n**2. Family Fun Day & Mental Health Awareness Event:**\n\n* **Target Audience:** Families with children of all ages (Covers a wider demographic, including the significant population under 10)\n* **Location:** Quezon Memorial Circle (Large, open space suitable for families)\n* **Activities:**  Kids\' basketball games, face painting, storytelling, arts and crafts, picnic area, mental health resource booths geared towards parents and children, short interactive sessions on building resilience and positive communication.\n* **Rationale:** Offers something for everyone in the family while incorporating the mental health theme. Quezon Memorial Circle\'s open space allows for diverse activities.\n\n**3.  \"Theatre for the Mind\":  Interactive Performance and Workshop:**\n\n* **Target Audience:** Ages 15-29 (Aligns with the user\'s interest in theatre and the higher concentration of young adults in the community)\n* **Location:** Quezon City Hall Complex (Potential for theatre space or conference room) or UP-Ayala Technohub Center (Modern and appealing to young adults)\n* **Activities:** A theatrical performance exploring themes of mental health, followed by an interactive workshop discussing the play\'s messages and providing coping strategies.  Partner with local theatre groups and mental health professionals.\n* **Rationale:** Combines theatre and mental health awareness in an engaging format for young adults.\n\n\n**Further Considerations:**\n\n* **Partnerships:** Collaborate with local organizations, schools, businesses, and mental health advocates to maximize reach and resources.\n* **Marketing:** Utilize social media, community newsletters, and local announcements to promote events.\n* **Accessibility:** Ensure events are accessible to all community members, including those with disabilities.\n* **Feedback:** Gather feedback after each event to improve future planning and address community needs.\n\nThis plan provides a variety of events catering to different age groups and interests, effectively integrating the user\'s preferences with the available resources and demographic information.  The focus on mental health awareness addresses an important topic while aligning with community interests.\n','2025-04-04 21:33:10');
 
 /*Table structure for table `announcements` */
 
@@ -70,6 +74,41 @@ CREATE TABLE `announcements` (
 
 /*Data for the table `announcements` */
 
+/*Table structure for table `claimed_items` */
+
+DROP TABLE IF EXISTS `claimed_items`;
+
+CREATE TABLE `claimed_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `stub_number` varchar(50) NOT NULL,
+  `claimed_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `stub_number` (`stub_number`),
+  KEY `user_id` (`user_id`),
+  KEY `item_id` (`item_id`),
+  CONSTRAINT `claimed_items_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `claimed_items_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `redeemable_items` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+/*Data for the table `claimed_items` */
+
+insert  into `claimed_items`(`id`,`user_id`,`item_id`,`stub_number`,`claimed_at`) values 
+(1,18,14,'STUB-67efccd023477','2025-04-04 20:13:04'),
+(2,18,14,'STUB-67efccd7679e9','2025-04-04 20:13:11'),
+(3,18,14,'STUB-67efcdb28e4f5','2025-04-04 20:16:50'),
+(4,18,14,'STUB-67efcfd127a3a','2025-04-04 20:25:53'),
+(5,18,14,'STUB-67efcfe945b9a','2025-04-04 20:26:17'),
+(6,18,14,'STUB-67efd2f73bb18','2025-04-04 20:39:19'),
+(7,18,14,'STUB-67efd329e150a','2025-04-04 20:40:09'),
+(8,18,14,'STUB-67efd33b4fb49','2025-04-04 20:40:27'),
+(9,18,14,'STUB-67efd39277c18','2025-04-04 20:41:54'),
+(10,18,14,'STUB-67efd3cba585c','2025-04-04 20:42:51'),
+(11,18,14,'STUB-67efd41bb291e','2025-04-04 20:44:11'),
+(12,18,14,'STUB-67efd4cd6ae9f','2025-04-04 20:47:09'),
+(13,18,14,'STUB-67efe118add58','2025-04-04 21:39:36');
+
 /*Table structure for table `comments` */
 
 DROP TABLE IF EXISTS `comments`;
@@ -84,9 +123,13 @@ CREATE TABLE `comments` (
   PRIMARY KEY (`id`),
   KEY `post_id` (`post_id`),
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `comments` */
+
+insert  into `comments`(`user_id`,`id`,`post_id`,`content`,`image_path`,`created_at`) values 
+('10',24,41,'awdawd',NULL,'2025-04-04 21:24:03'),
+('18',25,42,'adwdawdawd','../Admin/uploads/comments/360_F_534140463_IgCaQIwo1SscFB5oldx1DxOODFmR1Mhm.webp','2025-04-04 21:36:33');
 
 /*Table structure for table `cy` */
 
@@ -164,7 +207,7 @@ CREATE TABLE `points_log` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `points_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `points_log` */
 
@@ -173,7 +216,10 @@ insert  into `points_log`(`id`,`user_id`,`action`,`points`,`reason`,`created_at`
 (9,9,'add',2,'dawd','2025-04-04 17:00:44'),
 (10,10,'add',2,'dawd','2025-04-04 17:00:44'),
 (11,12,'add',2,'dawd','2025-04-04 17:00:44'),
-(12,14,'add',2,'dawd','2025-04-04 17:00:44');
+(12,14,'add',2,'dawd','2025-04-04 17:00:44'),
+(13,18,'add',100,'try lang','2025-04-04 19:36:40'),
+(14,9,'add',200,'we','2025-04-04 19:40:57'),
+(15,18,'add',2323,'awdawd','2025-04-04 19:41:07');
 
 /*Table structure for table `post_images` */
 
@@ -186,9 +232,13 @@ CREATE TABLE `post_images` (
   PRIMARY KEY (`id`),
   KEY `post_id` (`post_id`),
   CONSTRAINT `post_images_ibfk_1` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `post_images` */
+
+insert  into `post_images`(`id`,`post_id`,`image_path`) values 
+(33,41,'Admin/uploads/360_F_534140463_IgCaQIwo1SscFB5oldx1DxOODFmR1Mhm.webp'),
+(34,42,'../Admin/uploads/360_F_534140463_IgCaQIwo1SscFB5oldx1DxOODFmR1Mhm.webp');
 
 /*Table structure for table `posts` */
 
@@ -201,9 +251,13 @@ CREATE TABLE `posts` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `status` enum('pending','approved') DEFAULT 'pending',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `posts` */
+
+insert  into `posts`(`id`,`user_id`,`content`,`created_at`,`status`) values 
+(41,10,'awdawd','2025-04-04 21:23:46','approved'),
+(42,18,'awdawdaw','2025-04-04 21:35:42','approved');
 
 /*Table structure for table `programs` */
 
@@ -255,7 +309,7 @@ CREATE TABLE `user` (
   `username` varchar(100) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user` */
 
@@ -268,7 +322,8 @@ insert  into `user`(`id`,`firstname`,`lastname`,`email`,`username`,`password`) v
 (15,'Tejie','Ubos','kaito4127@gmail.com','user6','$2y$10$dobMSUtJiZReOD1GNcq6RudGj5HNnsHAwg3PmKAPljKplg8R03sy6'),
 (16,'Maria','Santos','kaito4127@gmail.com','Maria','$2y$10$DWOnNA5NkHTCtgBxnPZ9aO1qre8U8wuNslsf16roizEHTEF6BJ57q'),
 (17,'Juan','Santos','cruz@gmail.com','Juan','$2y$10$mweR.JGAXld6MpYLb2fjmOChamnxauHKSGqGbI5Q3P4hhgQhZop6K'),
-(18,'Arman','Ocampo','ewewe@gmail.com','Arman','$2y$10$4dDMQiq5SBCO7KmTZZ7.tu5VCa1HBcx4i.1Qsfs5e4zVAL0oHuVV2');
+(18,'Arman','Ocampo','ewewe@gmail.com','Arman','$2y$10$4dDMQiq5SBCO7KmTZZ7.tu5VCa1HBcx4i.1Qsfs5e4zVAL0oHuVV2'),
+(19,'Mark','De Guzman','cruzrovick@gmail.com','Mark','$2y$10$flE2RGtrWTQgDUrukAnDPej1M18L4GtwuWkgN73gXa9HNO.SySq92');
 
 /*Table structure for table `user_points` */
 
@@ -294,7 +349,7 @@ insert  into `user_points`(`id`,`user_id`,`points`) values
 (6,15,12),
 (7,16,7),
 (8,17,7),
-(9,18,5);
+(9,18,630);
 
 /*Table structure for table `user_points_log` */
 
@@ -309,7 +364,7 @@ CREATE TABLE `user_points_log` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_points_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_points_log` */
 
@@ -343,7 +398,21 @@ insert  into `user_points_log`(`id`,`user_id`,`date`,`points_change`,`descriptio
 (27,9,'2025-04-04',2,'Points added'),
 (28,9,'2025-04-04',2,'Points added'),
 (29,9,'2025-04-04',2,'Points added'),
-(30,18,'2025-04-04',5,'Daily login bonus');
+(30,18,'2025-04-04',5,'Daily login bonus'),
+(31,18,'2025-04-04',2,'dw'),
+(36,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(37,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(38,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(39,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(40,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(41,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(42,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(43,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(44,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(45,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(46,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(47,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(48,18,'2025-04-04',-100,'Redeemed item: School Supplies');
 
 /*Table structure for table `user_tags` */
 
