@@ -156,12 +156,47 @@ $history_stmt->close();
         .history-section table th, .history-section table td {
             padding: 10px;
             border: 1px solid #ddd;
+            text-align: center;
         }
-        .history-section table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
+        .history-section table td {
+            position: relative;
+        }
+        .history-section table td:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            white-space: nowrap;
+            font-size: 12px;
+            z-index: 10;
+        }
+        .chart-container {
+            margin-top: 20px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+        }
+        .refresh-button {
+            margin-top: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .refresh-button:hover {
+            background-color: #0056b3;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="vertical light">
     <div class="wrapper">
@@ -174,6 +209,10 @@ $history_stmt->close();
                     <div class="points-section">
                         <h2>Your Points</h2>
                         <div class="points"><?php echo $points; ?></div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pointsChart"></canvas>
+                        <button class="refresh-button">Refresh Points History</button>
                     </div>
                     <div class="history-section">
                         <h2>Points History</h2>
@@ -189,8 +228,8 @@ $history_stmt->close();
                                 <?php foreach ($history as $entry): ?>
                                     <tr>
                                         <td><?php echo $entry['date']; ?></td>
-                                        <td><?php echo $entry['points_change']; ?></td>
-                                        <td><?php echo $entry['description']; ?></td>
+                                        <td data-tooltip="Points change"><?php echo $entry['points_change']; ?></td>
+                                        <td data-tooltip="Reason for points"><?php echo $entry['description']; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -259,6 +298,67 @@ $history_stmt->close();
             <?php if ($show_modal): ?>
                 $('#pointsModal').modal('show');
             <?php endif; ?>
+
+            // Initialize chart
+            const ctx = document.getElementById('pointsChart').getContext('2d');
+            const pointsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: <?php echo json_encode(array_column($history, 'date')); ?>,
+                    datasets: [{
+                        label: 'Points Change',
+                        data: <?php echo json_encode(array_column($history, 'points_change')); ?>,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Points'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Refresh points history dynamically
+            $('.refresh-button').click(function() {
+                $.ajax({
+                    url: 'fetch_points_history.php', // Correct endpoint
+                    method: 'GET',
+                    success: function(data) {
+                        try {
+                            const parsedData = JSON.parse(data);
+                            pointsChart.data.labels = parsedData.labels;
+                            pointsChart.data.datasets[0].data = parsedData.data;
+                            pointsChart.update();
+                        } catch (e) {
+                            alert('Error parsing points history data.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Failed to refresh points history: ' + error);
+                    }
+                });
+            });
         });
     </script>
 </body>

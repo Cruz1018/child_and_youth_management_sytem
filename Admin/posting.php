@@ -16,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $imagePaths = [];
 
-        // Insert post content into the posts table
-        $stmt = $conn->prepare("INSERT INTO posts (content, user_id) VALUES (?, ?)");
+        // Insert post content into the posts table with 'approved' status for admin posts
+        $stmt = $conn->prepare("INSERT INTO posts (content, user_id, status) VALUES (?, ?, 'approved')");
         $stmt->bind_param("si", $content, $userId);
         $stmt->execute();
         $postId = $stmt->insert_id;
@@ -25,8 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Handle image uploads if images are provided
         if (isset($_FILES['images']['tmp_name']) && is_array($_FILES['images']['tmp_name']) && !empty($_FILES['images']['tmp_name'][0])) {
+            if (!is_dir('Admin/uploads/')) {
+                mkdir('Admin/uploads/', 0777, true); // Create the directory with proper permissions
+            }
             foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-                $imagePath = 'uploads/' . basename($_FILES['images']['name'][$key]);
+                $imagePath = 'Admin/uploads/' . basename($_FILES['images']['name'][$key]);
                 move_uploaded_file($tmp_name, $imagePath);
                 $imagePaths[] = $imagePath;
 
@@ -53,7 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Handle comment image upload if provided
         if (!empty($_FILES['comment_image']['tmp_name'])) {
-            $commentImagePath = 'uploads/comments/' . basename($_FILES['comment_image']['name']);
+            if (!is_dir('Admin/uploads/comments/')) {
+                mkdir('Admin/uploads/comments/', 0777, true); // Create the comments directory
+            }
+            $commentImagePath = 'Admin/uploads/comments/' . basename($_FILES['comment_image']['name']);
             move_uploaded_file($_FILES['comment_image']['tmp_name'], $commentImagePath);
         }
 
@@ -118,14 +124,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
         $stmt->close();
     }
+
+    // Handle post approval
+    if (isset($_POST['approve_post_id'])) {
+        $approvePostId = $_POST['approve_post_id'];
+        $stmt = $conn->prepare("UPDATE posts SET status = 'approved' WHERE id = ?");
+        $stmt->bind_param("i", $approvePostId);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    // Handle post rejection
+    if (isset($_POST['reject_post_id'])) {
+        $rejectPostId = $_POST['reject_post_id'];
+
+        // Delete post images
+        $stmt = $conn->prepare("SELECT image_path FROM post_images WHERE post_id = ?");
+        $stmt->bind_param("i", $rejectPostId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            if (file_exists($row['image_path'])) {
+                unlink($row['image_path']);
+            }
+        }
+        $stmt->close();
+
+        // Delete post and related images
+        $stmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
+        $stmt->bind_param("i", $rejectPostId);
+        $stmt->execute();
+        $stmt->close();
+
+        $stmt = $conn->prepare("DELETE FROM post_images WHERE post_id = ?");
+        $stmt->bind_param("i", $rejectPostId);
+        $stmt->execute();
+        $stmt->close();
+    }
 }
 
 // Fetch posts and comments from the database
 $posts = $conn->query("
-    SELECT p.id, p.content, pi.image_path, u.username 
+    SELECT p.id, p.content, p.status, GROUP_CONCAT(DISTINCT pi.image_path) AS image_paths, u.username 
     FROM posts p 
     LEFT JOIN post_images pi ON p.id = pi.post_id 
     LEFT JOIN user u ON p.user_id = u.id 
+    GROUP BY p.id 
     ORDER BY p.id DESC
 ");
 
@@ -179,7 +223,7 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             font-size: 18px;
         }
         .post-image {
-            max-width: 250px;
+            max-width: 7000px; /* Increased size */
             height: auto;
             border-radius: 5px;
             display: block;
@@ -198,7 +242,7 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
             border-radius: 5px;
         }
         .comment img {
-            max-width: 200px;
+            max-width: 300px; /* Increased size */
             height: auto;
             border-radius: 5px;
             display: block;
@@ -248,8 +292,8 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
         .modal-content {
             margin: auto;
             display: block;
-            width: 80%;
-            max-width: 700px;
+            width: 90%; /* Increased size */
+            max-width: 1000px; /* Increased maximum width */
         }
         .modal-content, #caption {
             animation-name: zoom;
@@ -409,8 +453,13 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                         <div class="post-card">
                             <h3><?php echo nl2br(htmlspecialchars($post['content'])); ?></h3>
                             <p><strong>Posted by:</strong> <?php echo htmlspecialchars($post['username']); ?></p>
-                            <?php if ($post['image_path']): ?>
-                                <img src="<?php echo htmlspecialchars($post['image_path']); ?>" class="post-image" alt="Post Image" onclick="openModal(this)">
+                            <p><strong>Status:</strong> <?php echo htmlspecialchars($post['status']); ?></p>
+                            <?php if (!empty($post['image_paths'])): ?>
+                                <div class="image-preview">
+                                    <?php foreach (explode(',', $post['image_paths']) as $imagePath): ?>
+                                        <img src="<?php echo htmlspecialchars($imagePath); ?>" class="post-image" alt="Post Image" onclick="openModal(this)">
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
 
                             <!-- Three dots menu -->
@@ -423,6 +472,17 @@ $eventsCount = $eventsResult->fetch_assoc()['count'];
                                     </form>
                                 </div>
                             </div>
+
+                            <?php if ($post['status'] == 'pending'): ?>
+                                <form action="posting.php" method="post" style="display:inline;">
+                                    <input type="hidden" name="approve_post_id" value="<?php echo $post['id']; ?>">
+                                    <button type="submit" class="approve-button">Approve</button>
+                                </form>
+                                <form action="posting.php" method="post" style="display:inline;">
+                                    <input type="hidden" name="reject_post_id" value="<?php echo $post['id']; ?>">
+                                    <button type="submit" class="reject-button" onclick="return confirm('Are you sure you want to reject this post?')">Reject</button>
+                                </form>
+                            <?php endif; ?>
 
                             <div class="comments">
                                 <h4>Comments</h4>

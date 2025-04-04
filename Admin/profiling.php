@@ -1,5 +1,9 @@
 <?php
+session_start(); // Start the session
 include '../conn.php';
+
+// Check if the user is logged in and retrieve the username
+$username = $_SESSION['username'] ?? 'Guest';
 
 // Fetch profiling data from the resident API
 function fetchResidentData($url) {
@@ -89,6 +93,7 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
         <main role="main" class="main-content">
             <div class="content">
                 <h1 class="mt-4">Resident Profiling</h1>
+                <p>Welcome, <?php echo htmlspecialchars($username); ?>!</p> <!-- Display the username -->
                 <div class="filter-container">
                     <input type="text" id="searchInput" class="form-control search-bar" placeholder="Search residents...">
                     <button class="btn btn-primary" onclick="location.reload();">Refresh Data</button>
@@ -150,28 +155,71 @@ $limitedData = array_slice($residentData, $offset, $itemsPerPage);
             </div>
         </main>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#profilingTable').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "pageLength": 10
-            });
+    <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/moment.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/simplebar.min.js"></script>
+  <script src='js/daterangepicker.js'></script>
+  <script src='js/jquery.stickOnScroll.js'></script>
+  <script src="js/tinycolor-min.js"></script>
+  <script src="js/d3.min.js"></script>
+  <script src="js/topojson.min.js"></script>
+  <script src="js/Chart.min.js"></script>
+  <script src="js/gauge.min.js"></script>
+  <script src="js/jquery.sparkline.min.js"></script>
+  <script src="js/apexcharts.min.js"></script>
+  <script src="js/apexcharts.custom.js"></script>
+  <script src='js/jquery.mask.min.js'></script>
+  <script src='js/select2.min.js'></script>
+  <script src='js/jquery.steps.min.js'></script>
+  <script src='js/jquery.validate.min.js'></script>
+  <script src='js/jquery.timepicker.js'></script>
+  <script src='js/dropzone.min.js'></script>
+  <script src='js/uppy.min.js'></script>
+  <script src='js/quill.min.js'></script>
+  <script src="js/apps.js"></script>
+  <script src="js/preloader.js"></script>
+  <script src="js/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+  <script src="js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src='js/jquery.dataTables.min.js'></script>
+  <script src='js/dataTables.bootstrap4.min.js'></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var options = {
+        series: [{
+          name: 'Count',
+          data: [<?php echo $userCount; ?>, <?php echo $cyCount; ?>, <?php echo $programsCount; ?>]
+        }],
+        chart: {
+          type: 'bar',
+          height: 350
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            endingShape: 'rounded'
+          },
+        },
+        dataLabels: {
+          enabled: false
+        },
+        xaxis: {
+          categories: ['Users', 'CY', 'Programs'],
+        }
+      };
 
-            $("#searchInput").on("keyup", function() {
-                var searchValue = $(this).val().toLowerCase();
-                $("#profilingTable tbody tr").filter(function() {
-                    $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
-                });
-            });
-        });
-    </script>
+      var chart = new ApexCharts(document.querySelector("#chart"), options);
+      chart.render();
+    });
+
+    // Initialize Bootstrap dropdowns
+    $(document).ready(function () {
+      $('.dropdown-toggle').dropdown();
+    });
+  </script>
 </body>
 </html>

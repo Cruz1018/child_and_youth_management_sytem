@@ -84,16 +84,17 @@ $userData['tags'] = $userTags ?? 'N/A';
             text-align: center;
             vertical-align: middle;
         }
-        .filter-container {
-            display: flex;
-            justify-content: flex-start; /* Change to flex-start to align items to the left */
-            align-items: center;
+        .loader {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
         }
-        .pagination {
-            justify-content: flex-start; /* Align pagination to the left */
-        }
-        .table-responsive {
-            overflow-x: hidden; /* Remove horizontal scroll */
+        .modal-header {
+            background-color: #343a40;
+            color: #fff;
         }
     </style>
 </head>
@@ -105,36 +106,67 @@ $userData['tags'] = $userTags ?? 'N/A';
             <div class="content">
                 <h1 class="mt-4">Profiling</h1>
                 <p class="mb-4">Welcome to your profiling page! Here, you can edit your tags to add your interests. Let us know what excites you!</p>
-                <?php if ($userData): ?>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover mt-4">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Age</th>
-                                    <th>Location</th>
-                                    <th>Contact</th>
-                                    <th>Tags</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="profilingTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Location</th>
+                                <th>Contact</th>
+                                <th>Tags</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($userData): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($userData['firstname'] . ' ' . $userData['lastname']); ?></td>
                                     <td><?php echo htmlspecialchars($userData['age'] ?? 'N/A'); ?></td>
                                     <td><?php echo htmlspecialchars(($userData['housenumber'] ?? '') . ' ' . ($userData['streetname'] ?? '') . ', ' . ($userData['barangay'] ?? '')); ?></td>
                                     <td><?php echo htmlspecialchars($userData['mobilenumber'] ?? 'N/A'); ?></td>
-                                    <td><?php echo htmlspecialchars($userData['tags'] ?? 'N/A'); ?></td>
+                                    <td id="userTags"><?php echo htmlspecialchars($userData['tags'] ?? 'N/A'); ?></td>
                                     <td>
-                                        <button class="btn btn-primary" onclick="editTags('<?php echo htmlspecialchars($userData['tags'] ?? ''); ?>')">Edit Tags</button>
+                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editTagsModal">Edit Tags</button>
                                     </td>
                                 </tr>
-                            </tbody>
-                        </table>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6">No data found for the logged-in user.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Modal for editing tags -->
+                <div class="modal fade" id="editTagsModal" tabindex="-1" aria-labelledby="editTagsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editTagsModalLabel">Edit Tags</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editTagsForm">
+                                    <div class="mb-3">
+                                        <label for="tagsInput" class="form-label">Tags</label>
+                                        <input type="text" class="form-control" id="tagsInput" value="<?php echo htmlspecialchars($userData['tags'] ?? ''); ?>">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="saveTagsButton">Save changes</button>
+                            </div>
+                        </div>
                     </div>
-                <?php else: ?>
-                    <p class="mt-4">No data found for the logged-in user.</p>
-                <?php endif; ?>
+                </div>
+
+                <!-- Loader -->
+                <div class="loader">
+                    <img src="assets/images/loader.gif" alt="Loading...">
+                </div>
             </div>
         </main>
     </div>
@@ -190,6 +222,59 @@ $userData['tags'] = $userTags ?? 'N/A';
                 });
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const table = document.getElementById('profilingTable');
+            searchInput.addEventListener('input', function () {
+                const filter = searchInput.value.toLowerCase();
+                const rows = table.getElementsByTagName('tr');
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    let match = false;
+                    for (let j = 0; j < cells.length; j++) {
+                        if (cells[j].textContent.toLowerCase().includes(filter)) {
+                            match = true;
+                            break;
+                        }
+                    }
+                    rows[i].style.display = match ? '' : 'none';
+                }
+            });
+
+            const saveTagsButton = document.getElementById('saveTagsButton');
+            const tagsInput = document.getElementById('tagsInput');
+            const userTags = document.getElementById('userTags');
+            const loader = document.querySelector('.loader');
+
+            saveTagsButton.addEventListener('click', function () {
+                const newTags = tagsInput.value.trim();
+                if (newTags) {
+                    loader.style.display = 'block';
+                    $.ajax({
+                        url: 'update_tags.php',
+                        type: 'POST',
+                        data: {
+                            firstname: '<?php echo $userFirstName; ?>',
+                            lastname: '<?php echo $userLastName; ?>',
+                            tags: newTags
+                        },
+                        success: function (response) {
+                            loader.style.display = 'none';
+                            userTags.textContent = newTags;
+                            alert('Tags updated successfully!');
+                            $('#editTagsModal').modal('hide');
+                        },
+                        error: function (error) {
+                            loader.style.display = 'none';
+                            alert('Error updating tags.');
+                        }
+                    });
+                } else {
+                    alert('Tags cannot be empty.');
+                }
+            });
+        });
     </script>
 </body>
 </html>

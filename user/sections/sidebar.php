@@ -18,7 +18,7 @@
       <li class="nav-item dropdown">
         <a class="nav-link" href="landing_page.php">
           <i class="fas fa-chart-line"></i>
-          <span class="ml-3 item-text">Admin</span>
+          <span class="ml-3 item-text">Home</span>
         </a>
       </li>
     </ul>
