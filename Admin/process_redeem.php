@@ -5,6 +5,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $item_name = $_POST['item_name'];
   $points_required = $_POST['points_required'];
   $description = $_POST['description'];
+  $max_claims = $_POST['max_claims'];
+  $cooldown_hours = $_POST['cooldown_hours'];
 
   // Handle image upload
   $image_path = '';
@@ -27,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   // Insert into database
-  $stmt = $conn->prepare("INSERT INTO redeemable_items (item_name, points_required, description, image_path) VALUES (?, ?, ?, ?)");
-  $stmt->bind_param('siss', $item_name, $points_required, $description, $image_path);
+  $stmt = $conn->prepare("INSERT INTO redeemable_items (item_name, points_required, description, image_path, max_claims, cooldown_hours) VALUES (?, ?, ?, ?, ?, ?)");
+  $stmt->bind_param('sissii', $item_name, $points_required, $description, $image_path, $max_claims, $cooldown_hours);
 
   if ($stmt->execute()) {
     header('Location: ad_redeem.php?success=1');

@@ -9,8 +9,8 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch redeemable items
-$items_query = "SELECT id, item_name, points_required, description, image_path FROM redeemable_items";
+// Fetch redeemable items with max claims and cooldown
+$items_query = "SELECT id, item_name, points_required, description, image_path, max_claims, cooldown_hours FROM redeemable_items";
 $items_result = $conn->query($items_query);
 $items = [];
 if ($items_result) {
@@ -18,6 +18,12 @@ if ($items_result) {
         $items[] = $row;
     }
 }
+
+// Check user's claim history for cooldown and max claims
+$claim_check_query = "SELECT COUNT(*) AS claim_count, MAX(claimed_at) AS last_claimed 
+                      FROM claimed_items 
+                      WHERE user_id = ? AND item_id = ?";
+$claim_check_stmt = $conn->prepare($claim_check_query);
 
 // Fetch user's current points
 $points_query = "SELECT points FROM user_points WHERE user_id = ?";
@@ -32,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $item_id = $_POST['item_id'];
 
     // Fetch item details
-    $item_query = "SELECT item_name, points_required FROM redeemable_items WHERE id = ?";
+    $item_query = "SELECT item_name, points_required, max_claims, cooldown_hours FROM redeemable_items WHERE id = ?";
     $stmt = $conn->prepare($item_query);
     if (!$stmt) {
         die('Database error: ' . $conn->error); // Add error handling
@@ -45,48 +51,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$item) {
         $error_message = "Item not found.";
-    } elseif ($user_points < $item['points_required']) {
-        $error_message = "Not enough points to redeem this item.";
     } else {
-        // Deduct points and log the transaction
-        $conn->begin_transaction();
-        try {
-            $points_required = $item['points_required'];
-            $deduct_query = "UPDATE user_points SET points = points - ? WHERE user_id = ?";
-            $deduct_stmt = $conn->prepare($deduct_query);
-            if (!$deduct_stmt) {
-                throw new Exception('Database error: ' . $conn->error); // Add error handling
-            }
-            $deduct_stmt->bind_param("ii", $points_required, $user_id);
-            $deduct_stmt->execute();
-            $deduct_stmt->close();
+        // Check claim history
+        $claim_check_stmt->bind_param("ii", $user_id, $item_id);
+        $claim_check_stmt->execute();
+        $claim_check_result = $claim_check_stmt->get_result();
+        $claim_data = $claim_check_result->fetch_assoc();
+        $claim_count = $claim_data['claim_count'];
+        $last_claimed = $claim_data['last_claimed'];
 
-            $log_query = "INSERT INTO user_points_log (user_id, date, points_change, description) VALUES (?, NOW(), ?, ?)";
-            $log_stmt = $conn->prepare($log_query);
-            if (!$log_stmt) {
-                throw new Exception('Database error: ' . $conn->error); // Add error handling
-            }
-            $description = "Redeemed item: " . $item['item_name'];
-            $points_change = -$points_required;
-            $log_stmt->bind_param("iis", $user_id, $points_change, $description);
-            $log_stmt->execute();
-            $log_stmt->close();
+        // Calculate cooldown expiration
+        $cooldown_expiration = strtotime($last_claimed) + ($item['cooldown_hours'] * 3600);
+        $current_time = time();
 
-            $claim_query = "INSERT INTO claimed_items (user_id, item_id, stub_number) VALUES (?, ?, ?)";
-            $claim_stmt = $conn->prepare($claim_query);
-            if (!$claim_stmt) {
-                throw new Exception('Database error: ' . $conn->error); // Add error handling
-            }
-            $stub_number = uniqid('STUB-');
-            $claim_stmt->bind_param("iis", $user_id, $item_id, $stub_number);
-            $claim_stmt->execute();
-            $claim_stmt->close();
+        if ($claim_count >= $item['max_claims']) {
+            $error_message = "You have reached the maximum number of claims for this item.";
+        } elseif ($last_claimed && $current_time < $cooldown_expiration) {
+            $remaining_time = $cooldown_expiration - $current_time;
+            $hours = floor($remaining_time / 3600);
+            $minutes = floor(($remaining_time % 3600) / 60);
+            $error_message = "You can claim this item again in $hours hours and $minutes minutes.";
+        } elseif ($user_points < $item['points_required']) {
+            $error_message = "Not enough points to redeem this item.";
+        } else {
+            // Deduct points and log the transaction
+            $conn->begin_transaction();
+            try {
+                $points_required = $item['points_required'];
+                $deduct_query = "UPDATE user_points SET points = points - ? WHERE user_id = ?";
+                $deduct_stmt = $conn->prepare($deduct_query);
+                if (!$deduct_stmt) {
+                    throw new Exception('Database error: ' . $conn->error); // Add error handling
+                }
+                $deduct_stmt->bind_param("ii", $points_required, $user_id);
+                $deduct_stmt->execute();
+                $deduct_stmt->close();
 
-            $conn->commit();
-            $success_message = "Item redeemed successfully! Stub Number: $stub_number";
-        } catch (Exception $e) {
-            $conn->rollback();
-            $error_message = $e->getMessage(); // Display the specific error
+                $log_query = "INSERT INTO user_points_log (user_id, date, points_change, description) VALUES (?, NOW(), ?, ?)";
+                $log_stmt = $conn->prepare($log_query);
+                if (!$log_stmt) {
+                    throw new Exception('Database error: ' . $conn->error); // Add error handling
+                }
+                $description = "Redeemed item: " . $item['item_name'];
+                $points_change = -$points_required;
+                $log_stmt->bind_param("iis", $user_id, $points_change, $description);
+                $log_stmt->execute();
+                $log_stmt->close();
+
+                $claim_query = "INSERT INTO claimed_items (user_id, item_id, stub_number) VALUES (?, ?, ?)";
+                $claim_stmt = $conn->prepare($claim_query);
+                if (!$claim_stmt) {
+                    throw new Exception('Database error: ' . $conn->error); // Add error handling
+                }
+                $stub_number = uniqid('STUB-');
+                $claim_stmt->bind_param("iis", $user_id, $item_id, $stub_number);
+                $claim_stmt->execute();
+                $claim_stmt->close();
+
+                // Decrement max_claims for the item
+                $update_claims_query = "UPDATE redeemable_items SET max_claims = max_claims - 1 WHERE id = ?";
+                $update_claims_stmt = $conn->prepare($update_claims_query);
+                if (!$update_claims_stmt) {
+                    throw new Exception('Database error: ' . $conn->error); // Add error handling
+                }
+                $update_claims_stmt->bind_param("i", $item_id);
+                $update_claims_stmt->execute();
+                $update_claims_stmt->close();
+
+                $conn->commit();
+                $success_message = "Item redeemed successfully! Stub Number: $stub_number";
+            } catch (Exception $e) {
+                $conn->rollback();
+                $error_message = $e->getMessage(); // Display the specific error
+            }
         }
     }
 }
@@ -296,6 +333,8 @@ $stmt->close();
                             <h3><?php echo $item['item_name']; ?></h3>
                             <p><?php echo $item['description']; ?></p>
                             <p>Points Required: <?php echo $item['points_required']; ?></p>
+                            <p>Max Claims: <?php echo $item['max_claims']; ?></p>
+                            <p>Cooldown: <?php echo $item['cooldown_hours']; ?> hours</p>
                             <form method="POST" onsubmit="event.preventDefault(); openConfirmationModal('<?php echo $item['item_name']; ?>', this);">
                                 <input type="hidden" name="item_id" value="<?php echo $item['id']; ?>">
                                 <button type="submit" <?php echo $user_points < $item['points_required'] ? 'disabled' : ''; ?>>Redeem</button>

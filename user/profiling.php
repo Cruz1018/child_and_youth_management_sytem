@@ -9,11 +9,8 @@ if (!isset($_SESSION['username'])) {
 
 $username = $_SESSION['username'];
 
-// Fetch user data and tags for the logged-in user
-$sql = "SELECT user.id, user.firstname, user.lastname, 
-               (SELECT GROUP_CONCAT(tags SEPARATOR ', ') 
-                FROM user_tags 
-                WHERE user_tags.user_id = user.id) AS tags 
+// Fetch user data for the logged-in user
+$sql = "SELECT user.id, user.firstname, user.lastname 
         FROM user 
         WHERE user.username = ?";
 $stmt = $conn->prepare($sql);
@@ -26,18 +23,38 @@ if (!$userData) {
     die("No data found for the logged-in user.");
 }
 
+// Fetch the most recent tags for the logged-in user
+$tagsSql = "SELECT tags FROM user_tags WHERE user_id = ? ORDER BY id DESC LIMIT 1";
+$tagsStmt = $conn->prepare($tagsSql);
+$tagsStmt->bind_param("i", $userData['id']);
+$tagsStmt->execute();
+$tagsResult = $tagsStmt->get_result();
+$userTags = [];
+if ($tagsRow = $tagsResult->fetch_assoc()) {
+    $tagsArray = explode(',', $tagsRow['tags']); // Split tags by comma
+    foreach ($tagsArray as $tag) {
+        $userTags[] = trim($tag); // Trim whitespace
+    }
+}
+$userData['tags'] = implode(', ', $userTags); // Combine tags into a comma-separated string
+
 // Handle tag update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tags'])) {
     $tags = trim($_POST['tags']);
     $userId = $userData['id'];
 
-    // Update or insert tags in the user_tags table
+    // Normalize and deduplicate tags
+    $tagsArray = explode(',', $tags);
+    $uniqueTags = array_unique(array_map('trim', $tagsArray));
+    $normalizedTags = implode(', ', $uniqueTags);
+
+    // Update or insert tags as a single entry
     $updateSql = "INSERT INTO user_tags (user_id, tags) VALUES (?, ?) 
                   ON DUPLICATE KEY UPDATE tags = ?";
     $updateStmt = $conn->prepare($updateSql);
-    $updateStmt->bind_param("iss", $userId, $tags, $tags);
+    $updateStmt->bind_param("iss", $userId, $normalizedTags, $normalizedTags);
     if ($updateStmt->execute()) {
-        $userData['tags'] = $tags; // Update the displayed tags
+        $userData['tags'] = $normalizedTags; // Update the displayed tags
         $message = "Tags updated successfully.";
     } else {
         $message = "Failed to update tags.";

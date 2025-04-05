@@ -1,7 +1,5 @@
 
 
-/*Table structure for table `ai_responses` */
-
 DROP TABLE IF EXISTS `ai_responses`;
 
 CREATE TABLE `ai_responses` (
@@ -336,7 +334,7 @@ CREATE TABLE `user_points` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_points_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_points` */
 
@@ -349,7 +347,8 @@ insert  into `user_points`(`id`,`user_id`,`points`) values
 (6,15,12),
 (7,16,7),
 (8,17,7),
-(9,18,630);
+(9,18,630),
+(10,19,5);
 
 /*Table structure for table `user_points_log` */
 
@@ -364,7 +363,7 @@ CREATE TABLE `user_points_log` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_points_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_points_log` */
 
@@ -412,7 +411,8 @@ insert  into `user_points_log`(`id`,`user_id`,`date`,`points_change`,`descriptio
 (45,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
 (46,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
 (47,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
-(48,18,'2025-04-04',-100,'Redeemed item: School Supplies');
+(48,18,'2025-04-04',-100,'Redeemed item: School Supplies'),
+(49,19,'2025-04-04',5,'Daily login bonus');
 
 /*Table structure for table `user_tags` */
 
@@ -425,13 +425,17 @@ CREATE TABLE `user_tags` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `user_tags_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `user_tags` */
 
 insert  into `user_tags`(`id`,`user_id`,`tags`) values 
 (3,17,'Mental health related topics, Basketball'),
-(4,18,'Theater');
+(5,19,'sports'),
+(17,19,'sports, Music'),
+(18,19,'sports, sports, Music, Arts'),
+(19,19,'sports, Music, Arts'),
+(20,19,'sports, Music, Arts');
 
 /*Table structure for table `volunteer` */
 

@@ -54,6 +54,9 @@
           <li class="nav-item">
             <a class="nav-link pl-3" href="upoints.php"><span class="ml-1 item-text">Points</span></a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link pl-3" href="redeem_points.php"><span class="ml-1 item-text">Redeem</span></a>
+          </li>
         </ul>
       </li>
     </ul>

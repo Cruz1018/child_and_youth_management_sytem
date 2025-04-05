@@ -6,6 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $item_name = $_POST['item_name'];
   $points_required = $_POST['points_required'];
   $description = $_POST['description'];
+  $max_claims = $_POST['max_claims'];
+  $cooldown_hours = $_POST['cooldown_hours'];
 
   // Handle image upload
   $image_path = '';
@@ -30,12 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Update the database
   if ($image_path) {
     // Update with a new image
-    $stmt = $conn->prepare("UPDATE redeemable_items SET item_name = ?, points_required = ?, description = ?, image_path = ? WHERE id = ?");
-    $stmt->bind_param('sissi', $item_name, $points_required, $description, $image_path, $id);
+    $stmt = $conn->prepare("UPDATE redeemable_items SET item_name = ?, points_required = ?, description = ?, image_path = ?, max_claims = ?, cooldown_hours = ? WHERE id = ?");
+    $stmt->bind_param('sissiii', $item_name, $points_required, $description, $image_path, $max_claims, $cooldown_hours, $id);
   } else {
     // Update without changing the image
-    $stmt = $conn->prepare("UPDATE redeemable_items SET item_name = ?, points_required = ?, description = ? WHERE id = ?");
-    $stmt->bind_param('sisi', $item_name, $points_required, $description, $id);
+    $stmt = $conn->prepare("UPDATE redeemable_items SET item_name = ?, points_required = ?, description = ?, max_claims = ?, cooldown_hours = ? WHERE id = ?");
+    $stmt->bind_param('sisiii', $item_name, $points_required, $description, $max_claims, $cooldown_hours, $id);
   }
 
   if ($stmt->execute()) {

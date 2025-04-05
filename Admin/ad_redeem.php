@@ -55,13 +55,15 @@
               <th>Points Required</th>
               <th>Description</th>
               <th>Image</th>
+              <th>Max Claims</th>
+              <th>Cooldown Hours</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <?php
             include '../conn.php';
-            $result = $conn->query("SELECT id, item_name, points_required, description, image_path FROM redeemable_items");
+            $result = $conn->query("SELECT id, item_name, points_required, description, image_path, max_claims, cooldown_hours FROM redeemable_items");
             if ($result) {
               while ($row = $result->fetch_assoc()) {
                 echo "<tr>
@@ -71,6 +73,8 @@
                         <td>
                           <img src='../uploads/{$row['image_path']}' alt='Item Image' class='zoomable-image' style='width: 50px; height: 50px; cursor: pointer;'>
                         </td>
+                        <td>{$row['max_claims']}</td>
+                        <td>{$row['cooldown_hours']}</td>
                         <td>
                           <button class='btn btn-warning btn-sm edit-item' data-id='{$row['id']}'>Edit</button>
                           <button class='btn btn-danger btn-sm delete-item' data-id='{$row['id']}'>Delete</button>
@@ -78,7 +82,7 @@
                       </tr>";
               }
             } else {
-              echo "<tr><td colspan='5'>Error fetching items: " . $conn->error . "</td></tr>";
+              echo "<tr><td colspan='7'>Error fetching items: " . $conn->error . "</td></tr>";
             }
             $conn->close();
             ?>
@@ -115,6 +119,14 @@
             <div class="form-group">
               <label for="item_image">Item Image:</label>
               <input type="file" id="item_image" name="item_image" class="form-control-file" accept="image/*" required>
+            </div>
+            <div class="form-group">
+              <label for="max_claims">Max Claims:</label>
+              <input type="number" id="max_claims" name="max_claims" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="cooldown_hours">Cooldown Hours:</label>
+              <input type="number" id="cooldown_hours" name="cooldown_hours" class="form-control" required>
             </div>
           </div>
           <div class="modal-footer">
@@ -155,6 +167,14 @@
               <label for="edit_item_image">Item Image:</label>
               <input type="file" id="edit_item_image" name="item_image" class="form-control-file" accept="image/*">
               <img id="current_item_image" src="" alt="Current Image" style="width: 100px; height: 100px; margin-top: 10px;">
+            </div>
+            <div class="form-group">
+              <label for="edit_max_claims">Max Claims:</label>
+              <input type="number" id="edit_max_claims" name="max_claims" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="edit_cooldown_hours">Cooldown Hours:</label>
+              <input type="number" id="edit_cooldown_hours" name="cooldown_hours" class="form-control" required>
             </div>
           </div>
           <div class="modal-footer">
@@ -248,6 +268,8 @@
             $('#edit_points_required').val(item.points_required);
             $('#edit_description').val(item.description);
             $('#current_item_image').attr('src', '../uploads/' + item.image_path);
+            $('#edit_max_claims').val(item.max_claims);
+            $('#edit_cooldown_hours').val(item.cooldown_hours);
             $('#editItemModal').modal('show');
           },
           error: function (xhr, status, error) {
